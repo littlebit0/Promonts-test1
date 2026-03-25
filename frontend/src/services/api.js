@@ -60,6 +60,24 @@ export const todoAPI = {
   toggle: (id) => api.patch(`/todos/${id}/toggle`),
 };
 
+// Assignment API
+export const assignmentAPI = {
+  getAllByCourse: (courseId) => api.get(`/courses/${courseId}/assignments`),
+  getById: (id) => api.get(`/assignments/${id}`),
+  create: (courseId, data) => api.post(`/courses/${courseId}/assignments`, data),
+  update: (id, data) => api.put(`/assignments/${id}`, data),
+  delete: (id) => api.delete(`/assignments/${id}`),
+};
+
+// Notice API
+export const noticeAPI = {
+  getAllByCourse: (courseId) => api.get(`/courses/${courseId}/notices`),
+  getById: (id) => api.get(`/notices/${id}`),
+  create: (courseId, data) => api.post(`/courses/${courseId}/notices`, data),
+  update: (id, data) => api.put(`/notices/${id}`, data),
+  delete: (id) => api.delete(`/notices/${id}`),
+};
+
 // Dashboard API
 export const dashboardAPI = {
   get: () => api.get('/dashboard'),
