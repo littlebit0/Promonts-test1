@@ -1,0 +1,12 @@
+# Test files
+test-*.json
+token*.txt
+login*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

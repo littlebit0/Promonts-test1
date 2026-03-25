@@ -1,0 +1,1 @@
+package com.promonts.dto;import jakarta.validation.constraints.*;import lombok.*;import java.time.LocalDateTime;@Data @NoArgsConstructor @AllArgsConstructor @Builder public class AssignmentRequest{@NotBlank(message="제목은 필수입니다")private String title;private String description;@NotNull(message="마감일은 필수입니다")private LocalDateTime dueDate;}

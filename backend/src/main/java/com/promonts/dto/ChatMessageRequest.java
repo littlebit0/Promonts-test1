@@ -1,0 +1,1 @@
+package com.promonts.dto;import com.promonts.domain.chat.ChatMessage;import jakarta.validation.constraints.*;import lombok.*;@Data @NoArgsConstructor @AllArgsConstructor @Builder public class ChatMessageRequest{@NotNull(message="강의 ID는 필수입니다")private Long courseId;@NotBlank(message="메시지 내용은 필수입니다")private String content;private ChatMessage.MessageType type;}

@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: promonts-backend
+  
+  datasource:
+    url: jdbc:h2:mem:promonts
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+jwt:
+  secret: promonts-mvp-secret-key-change-this-in-production-2026
+  expiration: 86400000 # 24시간 (밀리초)
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:3000,http://localhost:8081
+  allowed-methods: GET,POST,PUT,DELETE,PATCH
+  allowed-headers: "*"
+  allow-credentials: true

@@ -1,0 +1,1 @@
+package com.promonts.dto;import jakarta.validation.constraints.*;import lombok.*;@Data @NoArgsConstructor @AllArgsConstructor @Builder public class WorkspaceRequest{@NotBlank(message="워크스페이스 이름은 필수입니다")private String name;private String description;private Long courseId;private String notes;}
