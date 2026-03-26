@@ -1,6 +1,9 @@
 package com.promonts.service;
 import com.promonts.domain.assignment.Assignment;
 import com.promonts.domain.course.Course;
+import com.promonts.domain.enrollment.CourseEnrollment;
+import com.promonts.domain.todo.Todo;
+import com.promonts.domain.user.User;
 import com.promonts.dto.*;
 import com.promonts.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,9 @@ import java.util.stream.Collectors;
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
     private final CourseRepository courseRepository;
+    private final CourseEnrollmentRepository enrollmentRepository;
+    private final TodoRepository todoRepository;
+    
     @Transactional
     public AssignmentResponse createAssignment(Long courseId, AssignmentRequest request, String professorEmail) {
         Course course = courseRepository.findById(courseId)
@@ -27,6 +33,24 @@ public class AssignmentService {
                 .course(course)
                 .build();
         Assignment savedAssignment = assignmentRepository.save(assignment);
+        
+        // 수강생들에게 자동으로 할 일 추가
+        List<CourseEnrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
+        for (CourseEnrollment enrollment : enrollments) {
+            User student = enrollment.getUser();
+            if (student.getRole() == User.Role.STUDENT) {
+                Todo todo = Todo.builder()
+                        .title("[과제] " + savedAssignment.getTitle())
+                        .description(savedAssignment.getDescription())
+                        .dueDate(savedAssignment.getDueDate())
+                        .user(student)
+                        .completed(false)
+                        .relatedCourse(course.getName())
+                        .build();
+                todoRepository.save(todo);
+            }
+        }
+        
         return AssignmentResponse.from(savedAssignment);
     }
     @Transactional(readOnly = true)

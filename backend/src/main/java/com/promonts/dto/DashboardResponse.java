@@ -18,6 +18,7 @@ public class DashboardResponse {
     public static class UpcomingItem {
         private String type; // "TODO", "ASSIGNMENT"
         private Long id;
+        private Long assignmentId; // 과제 상세 조회용
         private String title;
         private LocalDateTime dueDate;
         private String courseName;

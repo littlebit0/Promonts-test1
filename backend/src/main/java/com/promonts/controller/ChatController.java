@@ -4,8 +4,7 @@ import com.promonts.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,25 +14,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
-    @MessageMapping("/chat.send")
-    @SendTo("/topic/messages")
-    public ChatMessageResponse sendMessage(
-            @Valid ChatMessageRequest request,
-            SimpMessageHeaderAccessor headerAccessor) {
-        String senderEmail = (String) headerAccessor.getSessionAttributes().get("userEmail");
-        return chatService.sendMessage(request, senderEmail);
-    }
+    private final SimpMessagingTemplate messagingTemplate;
+    
     @RestController
     @RequestMapping("/api/chat")
     @RequiredArgsConstructor
     public static class ChatRestController {
         private final ChatService chatService;
+        private final SimpMessagingTemplate messagingTemplate;
+        
         @PostMapping("/messages")
         public ResponseEntity<ChatMessageResponse> sendMessage(
                 @RequestBody @Valid ChatMessageRequest request,
                 Authentication authentication) {
             String senderEmail = authentication.getName();
             ChatMessageResponse response = chatService.sendMessage(request, senderEmail);
+            
+            // WebSocket으로 실시간 전송
+            messagingTemplate.convertAndSend(
+                "/topic/course/" + request.getCourseId(),
+                response
+            );
+            
             return ResponseEntity.ok(response);
         }
         @GetMapping("/courses/{courseId}/messages")

@@ -71,11 +71,30 @@ export const assignmentAPI = {
 
 // Notice API
 export const noticeAPI = {
+  getAll: () => api.get('/notices'),
   getAllByCourse: (courseId) => api.get(`/courses/${courseId}/notices`),
   getById: (id) => api.get(`/notices/${id}`),
-  create: (courseId, data) => api.post(`/courses/${courseId}/notices`, data),
+  create: (data) => api.post('/notices', data),
   update: (id, data) => api.put(`/notices/${id}`, data),
   delete: (id) => api.delete(`/notices/${id}`),
+};
+
+// Week API
+export const weekAPI = {
+  getWeeks: (courseId) => api.get(`/courses/${courseId}/weeks`),
+  getWeekDetail: (courseId, weekNumber) => api.get(`/courses/${courseId}/weeks/${weekNumber}`),
+  updateDescription: (weekId, description) => api.put(`/courses/${courseId}/weeks/${weekId}/description`, description),
+};
+
+// Material API
+export const materialAPI = {
+  upload: (courseId, weekNumber, formData) => {
+    return api.post(`/courses/${courseId}/weeks/${weekNumber}/materials`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  delete: (courseId, materialId) => api.delete(`/courses/${courseId}/weeks/materials/${materialId}`),
+  download: (materialId) => api.get(`/materials/${materialId}/download`, { responseType: 'blob' }),
 };
 
 // Dashboard API

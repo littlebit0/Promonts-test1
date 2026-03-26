@@ -156,24 +156,37 @@ function TodosPage() {
                   type="checkbox"
                   checked={todo.completed}
                   onChange={() => handleToggle(todo.id)}
-                  className="mt-1 w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
+                  disabled={todo.title && todo.title.startsWith('[과제]')}
+                  className={`mt-1 w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 ${
+                    todo.title && todo.title.startsWith('[과제]') 
+                      ? 'cursor-not-allowed opacity-50' 
+                      : 'cursor-pointer'
+                  }`}
+                  title={todo.title && todo.title.startsWith('[과제]') ? '과제는 제출 시스템을 통해서만 완료할 수 있습니다.' : ''}
                 />
                 <div className="flex-1">
-                  <h3
-                    className={`text-xl font-bold ${
-                      todo.completed ? 'line-through text-gray-500' : 'text-gray-900'
-                    }`}
-                  >
-                    {todo.title}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3
+                      className={`text-xl font-bold ${
+                        todo.completed ? 'line-through text-gray-500' : 'text-gray-900'
+                      }`}
+                    >
+                      {todo.title}
+                    </h3>
+                    {todo.title && todo.title.startsWith('[과제]') && (
+                      <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-bold">
+                        제출 필요
+                      </span>
+                    )}
+                  </div>
                   {todo.description && (
                     <p className="text-gray-600 mt-2">{todo.description}</p>
                   )}
                   <div className="flex gap-4 mt-3 text-sm">
-                    {todo.courseName && (
+                    {(todo.relatedCourse || todo.courseName) && (
                       <span className="flex items-center gap-1 text-gray-600">
                         <BookOpen className="w-4 h-4" />
-                        {todo.courseName}
+                        {todo.relatedCourse || todo.courseName}
                       </span>
                     )}
                     {todo.dueDate && (

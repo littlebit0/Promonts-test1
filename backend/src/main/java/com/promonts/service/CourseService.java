@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final WeekService weekService;
     @Transactional
     public CourseResponse createCourse(CourseRequest request, String professorEmail) {
         User professor = userRepository.findByEmail(professorEmail)
@@ -25,6 +26,10 @@ public class CourseService {
         Course course = Course.builder().name(request.getName()).code(request.getCode()).professor(professor)
                 .semester(request.getSemester()).year(request.getYear()).description(request.getDescription()).build();
         Course savedCourse = courseRepository.save(course);
+        
+        // 1~15주차 자동 생성
+        weekService.initializeWeeksForCourse(savedCourse.getId());
+        
         return CourseResponse.from(savedCourse);
     }
     @Transactional(readOnly = true)

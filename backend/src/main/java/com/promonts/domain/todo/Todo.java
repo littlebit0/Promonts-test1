@@ -21,6 +21,8 @@ public class Todo {
     private Boolean completed = false;
     @Enumerated(EnumType.STRING) @Column(length = 20)
     private Priority priority;
+    @Column(length = 200)
+    private String relatedCourse; // 과제 자동 생성 시 강의명 저장
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "course_id")

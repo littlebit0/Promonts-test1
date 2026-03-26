@@ -1,61 +1,46 @@
 import { useEffect, useState } from 'react';
-import { Bell, Plus } from 'lucide-react';
-import { courseAPI, noticeAPI } from '../services/api';
+import { noticeAPI, courseAPI } from '../services/api';
+import { Bell, Plus, X, Calendar, BookOpen, Filter } from 'lucide-react';
 
 function NoticesPage({ user }) {
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [notices, setNotices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-  });
+  const [formData, setFormData] = useState({ title: '', content: '', courseId: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
 
   useEffect(() => {
-    loadCourses();
+    loadData();
   }, []);
 
-  useEffect(() => {
-    if (selectedCourse) {
-      loadNotices(selectedCourse);
-    }
-  }, [selectedCourse]);
-
-  const loadCourses = async () => {
+  const loadData = async () => {
     try {
-      const response = await courseAPI.getAll();
-      setCourses(response.data);
-      if (response.data.length > 0) {
-        setSelectedCourse(response.data[0].id);
-      }
+      const [noticesRes, coursesRes] = await Promise.all([
+        noticeAPI.getAll(),
+        courseAPI.getAll(),
+      ]);
+      setNotices(noticesRes.data);
+      setCourses(coursesRes.data);
     } catch (error) {
-      console.error('Failed to load courses:', error);
-    } finally {
-      setLoading(false);
+      console.error('Failed to load data:', error);
     }
   };
 
-  const loadNotices = async (courseId) => {
-    try {
-      const response = await noticeAPI.getAllByCourse(courseId);
-      setNotices(response.data);
-    } catch (error) {
-      console.error('Failed to load notices:', error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleCreateOrUpdate = async (e) => {
     e.preventDefault();
     try {
-      await noticeAPI.create(selectedCourse, formData);
+      if (selectedNotice) {
+        await noticeAPI.update(selectedNotice.id, formData);
+      } else {
+        await noticeAPI.create(formData);
+      }
+      loadData();
       setShowModal(false);
-      setFormData({ title: '', content: '' });
-      loadNotices(selectedCourse);
+      setFormData({ title: '', content: '', courseId: '' });
+      setSelectedNotice(null);
     } catch (error) {
       console.error('Failed to save notice:', error);
       alert('공지사항 저장에 실패했습니다.');
@@ -63,166 +48,288 @@ function NoticesPage({ user }) {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await noticeAPI.delete(id);
-      setSelectedNotice(null);
-      loadNotices(selectedCourse);
+      loadData();
     } catch (error) {
       console.error('Failed to delete notice:', error);
-      alert('삭제에 실패했습니다.');
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">로딩 중...</div>;
-  }
+  const handleEdit = (notice) => {
+    setSelectedNotice(notice);
+    setFormData({
+      title: notice.title,
+      content: notice.content,
+      courseId: notice.courseId,
+    });
+    setShowModal(true);
+  };
 
-  if (courses.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        등록된 강의가 없습니다.
-      </div>
-    );
-  }
+  const handleViewDetail = (notice) => {
+    setSelectedNotice(notice);
+  };
+
+  // 필터링된 공지사항
+  const filteredNotices = selectedCourse === 'all'
+    ? notices
+    : notices.filter(n => n.courseId === parseInt(selectedCourse));
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">공지사항</h1>
-        {isProfessor && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
-          >
-            + 새 공지
-          </button>
-        )}
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-8 text-white shadow-lg">
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+          <Bell className="w-8 h-8" />
+          공지사항
+        </h1>
+        <p className="text-primary-100">강의별 공지사항을 확인하세요</p>
       </div>
 
-      {/* Course Selector */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">강의 선택</label>
-        <select
-          value={selectedCourse || ''}
-          onChange={(e) => setSelectedCourse(Number(e.target.value))}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-        >
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.name} ({course.code})
-            </option>
-          ))}
-        </select>
+      {/* Filter & Create Button */}
+      <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="flex justify-between items-center">
+          {/* Filter */}
+          <div className="flex items-center gap-3">
+            <Filter className="w-5 h-5 text-gray-600" />
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+            >
+              <option value="all">전체 강의</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-gray-500">
+              {filteredNotices.length}개의 공지사항
+            </span>
+          </div>
+
+          {/* Create Button (교수만) */}
+          {isProfessor && (
+            <button
+              onClick={() => {
+                setSelectedNotice(null);
+                setFormData({ title: '', content: '', courseId: '' });
+                setShowModal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              공지 작성
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Notices List */}
-      <div className="grid gap-4">
-        {notices.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-            등록된 공지사항이 없습니다.
-            {isProfessor && ' 새 공지를 추가해보세요!'}
+      <div className="space-y-4">
+        {filteredNotices.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-md p-12 text-center">
+            <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-gray-400 text-lg">공지사항이 없습니다.</p>
           </div>
         ) : (
-          notices.map((notice) => (
+          filteredNotices.map((notice) => (
             <div
               key={notice.id}
-              className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition"
-              onClick={() => setSelectedNotice(notice)}
+              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-primary-500"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900">{notice.title}</h3>
-                  <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                    <span>{notice.authorName}</span>
-                    <span>{new Date(notice.createdAt).toLocaleDateString('ko-KR')}</span>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{notice.title}</h3>
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="w-4 h-4 text-primary-600" />
+                      <span className="font-medium text-primary-700">{notice.courseName}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(notice.createdAt).toLocaleDateString('ko-KR')}
+                    </span>
                   </div>
                 </div>
                 {isProfessor && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(notice.id);
-                    }}
-                    className="ml-4 px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition"
-                  >
-                    삭제
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(notice)}
+                      className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={() => handleDelete(notice.id)}
+                      className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                    >
+                      삭제
+                    </button>
+                  </div>
                 )}
               </div>
+              <p className="text-gray-600 line-clamp-2 mb-3">{notice.content}</p>
+              <button
+                onClick={() => handleViewDetail(notice)}
+                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              >
+                자세히 보기 →
+              </button>
             </div>
           ))
         )}
       </div>
 
-      {/* Notice Detail Modal */}
-      {selectedNotice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">{selectedNotice.title}</h2>
+      {/* Create/Edit Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {selectedNotice ? '공지사항 수정' : '새 공지사항'}
+              </h2>
               <button
-                onClick={() => setSelectedNotice(null)}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedNotice(null);
+                  setFormData({ title: '', content: '', courseId: '' });
+                }}
+                className="text-gray-400 hover:text-gray-600"
               >
-                ×
+                <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="flex gap-4 mb-4 text-sm text-gray-500">
-              <span>작성자: {selectedNotice.authorName}</span>
-              <span>{new Date(selectedNotice.createdAt).toLocaleString('ko-KR')}</span>
-            </div>
-            <div className="prose max-w-none">
-              <p className="whitespace-pre-wrap text-gray-700">{selectedNotice.content}</p>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Create Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">새 공지사항 작성</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleCreateOrUpdate} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  강의 선택 *
+                </label>
+                <select
+                  required
+                  value={formData.courseId}
+                  onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                >
+                  <option value="">강의를 선택하세요</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  제목 *
+                </label>
                 <input
                   type="text"
+                  required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  placeholder="공지 제목"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                  placeholder="공지사항 제목"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  내용 *
+                </label>
                 <textarea
+                  required
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  required
-                  rows="10"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  placeholder="공지 내용"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                  rows="8"
+                  placeholder="공지사항 내용을 입력하세요"
                 />
               </div>
-              <div className="flex gap-3">
+
+              <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  onClick={() => {
+                    setShowModal(false);
+                    setSelectedNotice(null);
+                    setFormData({ title: '', content: '', courseId: '' });
+                  }}
+                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+                  className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium"
                 >
-                  등록
+                  {selectedNotice ? '수정' : '작성'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {selectedNotice && !showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedNotice.title}</h2>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-4 h-4 text-primary-600" />
+                    <span className="font-medium text-primary-700">{selectedNotice.courseName}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    {new Date(selectedNotice.createdAt).toLocaleDateString('ko-KR')}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedNotice(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="prose max-w-none">
+                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {selectedNotice.content}
+                </p>
+              </div>
+            </div>
+
+            {isProfessor && (
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
+                <button
+                  onClick={() => {
+                    handleEdit(selectedNotice);
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelete(selectedNotice.id);
+                    setSelectedNotice(null);
+                  }}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+                >
+                  삭제
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -231,5 +338,3 @@ function NoticesPage({ user }) {
 }
 
 export default NoticesPage;
-
-

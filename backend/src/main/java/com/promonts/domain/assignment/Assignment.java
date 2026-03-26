@@ -1,5 +1,6 @@
 package com.promonts.domain.assignment;
 import com.promonts.domain.course.Course;
+import com.promonts.domain.week.Week;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,6 +19,8 @@ public class Assignment {
     private LocalDateTime dueDate;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "week_id")
+    private Week week;
     @CreationTimestamp @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }

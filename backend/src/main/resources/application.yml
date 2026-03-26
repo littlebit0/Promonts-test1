@@ -31,6 +31,9 @@ jwt:
   secret: promonts-mvp-secret-key-change-this-in-production-2026
   expiration: 86400000 # 24시간 (밀리초)
 
+file:
+  upload-dir: uploads/materials
+
 server:
   port: 8080
 

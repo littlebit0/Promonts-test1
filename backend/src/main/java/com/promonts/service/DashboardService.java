@@ -30,7 +30,10 @@ public class DashboardService {
         int totalTodos = todos.size();
         int completedTodos = (int) todos.stream().filter(t -> t.getCompleted()).count();
         
-        int pendingAssignments = 0; // 학생용 제출 시스템 추후 구현
+        // 대기 중인 과제 = 미완료 Todo 중 과제인 것
+        int pendingAssignments = (int) todos.stream()
+                .filter(t -> !t.getCompleted() && t.getTitle() != null && t.getTitle().startsWith("[과제]"))
+                .count();
         
         DashboardResponse.UserStats stats = DashboardResponse.UserStats.builder()
                 .totalCourses(totalCourses)
@@ -51,10 +54,33 @@ public class DashboardService {
                 .forEach(t -> upcomingItems.add(DashboardResponse.UpcomingItem.builder()
                         .type("TODO")
                         .id(t.getId())
+                        .assignmentId(null)
                         .title(t.getTitle())
                         .dueDate(t.getDueDate())
-                        .courseName(t.getCourse() != null ? t.getCourse().getName() : null)
+                        .courseName(t.getRelatedCourse() != null ? t.getRelatedCourse() : 
+                                    (t.getCourse() != null ? t.getCourse().getName() : null))
                         .build()));
+        
+        // Assignments (교수용 또는 학생용)
+        if (user.getRole() == User.Role.PROFESSOR) {
+            var courses = courseRepository.findByProfessor(user);
+            courses.forEach(course -> {
+                assignmentRepository.findByCourse(course).stream()
+                        .filter(a -> a.getDueDate() != null 
+                                && a.getDueDate().isAfter(now) && a.getDueDate().isBefore(weekLater))
+                        .forEach(a -> upcomingItems.add(DashboardResponse.UpcomingItem.builder()
+                                .type("ASSIGNMENT")
+                                .id(a.getId())
+                                .assignmentId(a.getId())
+                                .title(a.getTitle())
+                                .dueDate(a.getDueDate())
+                                .courseName(a.getCourse().getName())
+                                .build()));
+            });
+        }
+        
+        // 마감일 순 정렬
+        upcomingItems.sort((a, b) -> a.getDueDate().compareTo(b.getDueDate()));
         
         // Recent Activities
         List<DashboardResponse.RecentActivity> recentActivities = new ArrayList<>();
