@@ -20,7 +20,7 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(password);
         User user = User.builder().email(email).password(encodedPassword).name(name).role(role).build();
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name());
+        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name(), savedUser.getId());
         return LoginResponse.from(savedUser, token);
     }
     @Transactional(readOnly = true)
@@ -30,7 +30,7 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId());
         return LoginResponse.from(user, token);
     }
 }

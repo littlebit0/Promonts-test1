@@ -1,5 +1,6 @@
 package com.promonts.repository;
 
+import com.promonts.domain.course.Course;
 import com.promonts.domain.enrollment.CourseEnrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,4 +11,5 @@ import java.util.List;
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long> {
     List<CourseEnrollment> findByCourseId(Long courseId);
     List<CourseEnrollment> findByUserId(Long userId);
+    List<CourseEnrollment> findByCourse(Course course);
 }

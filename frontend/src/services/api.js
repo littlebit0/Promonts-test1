@@ -69,6 +69,19 @@ export const assignmentAPI = {
   delete: (id) => api.delete(`/assignments/${id}`),
 };
 
+// Submission API
+export const submissionAPI = {
+  submit: (assignmentId, formData) => {
+    return api.post(`/submissions/${assignmentId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  getByAssignment: (assignmentId) => api.get(`/submissions/assignment/${assignmentId}`),
+  getMy: (assignmentId) => api.get(`/submissions/assignment/${assignmentId}/my`),
+  grade: (submissionId, score, feedback) => api.patch(`/submissions/${submissionId}/grade`, null, { params: { score, feedback } }),
+  delete: (submissionId) => api.delete(`/submissions/${submissionId}`),
+};
+
 // Notice API
 export const noticeAPI = {
   getAll: () => api.get('/notices'),
