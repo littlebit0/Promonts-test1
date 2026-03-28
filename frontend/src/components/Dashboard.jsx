@@ -77,53 +77,53 @@ function Dashboard({ user }) {
       {dashboard?.userStats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* 총 강의 */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-primary-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-primary-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">총 강의</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboard.userStats.totalCourses}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 강의</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.totalCourses}</p>
               </div>
-              <div className="bg-primary-100 p-3 rounded-lg">
-                <BookOpen className="w-8 h-8 text-primary-600" />
+              <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-lg">
+                <BookOpen className="w-8 h-8 text-primary-600 dark:text-primary-400" />
               </div>
             </div>
           </div>
 
           {/* 총 할 일 */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-gray-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-gray-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">총 할 일</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboard.userStats.totalTodos}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 할 일</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.totalTodos}</p>
               </div>
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <FileText className="w-8 h-8 text-gray-700" />
+              <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
+                <FileText className="w-8 h-8 text-gray-700 dark:text-gray-300" />
               </div>
             </div>
           </div>
 
           {/* 완료한 할 일 */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-green-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">완료한 할 일</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboard.userStats.completedTodos}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">완료한 할 일</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.completedTodos}</p>
               </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
+                <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
 
           {/* 대기 중인 과제 */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-accent-500">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-accent-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">대기 중인 과제</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboard.userStats.pendingAssignments}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">대기 중인 과제</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.pendingAssignments}</p>
               </div>
-              <div className="bg-accent-100 p-3 rounded-lg">
-                <AlertCircle className="w-8 h-8 text-accent-600" />
+              <div className="bg-accent-100 dark:bg-accent-900 p-3 rounded-lg">
+                <AlertCircle className="w-8 h-8 text-accent-600 dark:text-accent-400" />
               </div>
             </div>
           </div>
@@ -131,13 +131,13 @@ function Dashboard({ user }) {
       )}
 
       {/* Courses List */}
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-primary-600" />
             내 강의
           </h2>
-          <span className="text-sm text-gray-500">{courses.length}개</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{courses.length}개</span>
         </div>
 
         {courses.length === 0 ? (
@@ -147,28 +147,28 @@ function Dashboard({ user }) {
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="border-2 border-gray-100 rounded-lg p-6 hover:border-primary-300 hover:shadow-lg transition-all"
+                className="border-2 border-gray-100 dark:border-gray-700 rounded-lg p-6 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg transition-all bg-white dark:bg-gray-850"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900">{course.name}</h3>
-                    <p className="text-sm text-primary-600 font-mono font-bold mt-1">{course.code}</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{course.name}</h3>
+                    <p className="text-sm text-primary-600 dark:text-primary-400 font-mono font-bold mt-1">{course.code}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 text-sm mb-4">
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <Users className="w-4 h-4" />
                     <span>{course.professorName}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <Calendar className="w-4 h-4" />
                     <span>{course.semester} ({course.year})</span>
                   </div>
                 </div>
 
                 {course.description && (
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">{course.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">{course.description}</p>
                 )}
 
                 <button
@@ -185,13 +185,13 @@ function Dashboard({ user }) {
       </div>
 
       {/* Todos */}
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <CheckCircle2 className="w-6 h-6 text-green-600" />
             할 일
           </h2>
-          <span className="text-sm text-gray-500">{todos.filter(t => !t.completed).length}개 남음</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{todos.filter(t => !t.completed).length}개 남음</span>
         </div>
         <div className="space-y-3 max-h-[400px] overflow-y-auto">
           {todos.length === 0 ? (
@@ -202,8 +202,8 @@ function Dashboard({ user }) {
                 key={todo.id}
                 className={`group border-2 rounded-lg p-4 transition-all ${
                   todo.completed
-                    ? 'border-gray-200 bg-gray-50 opacity-60'
-                    : 'border-gray-100 hover:border-green-300 hover:bg-green-50'
+                    ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 opacity-60'
+                    : 'border-gray-100 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900'
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -222,13 +222,13 @@ function Dashboard({ user }) {
                   <div className="flex-1">
                     <h3
                       className={`font-medium ${
-                        todo.completed ? 'line-through text-gray-500' : 'text-gray-900'
+                        todo.completed ? 'line-through text-gray-500 dark:text-gray-600' : 'text-gray-900 dark:text-gray-100'
                       }`}
                     >
                       {todo.title}
                     </h3>
                     {todo.courseName && (
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                         <BookOpen className="w-3 h-3" />
                         {todo.courseName}
                       </p>
