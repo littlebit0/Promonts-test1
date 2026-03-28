@@ -28,8 +28,8 @@ public class CourseController {
     }
     @GetMapping("/my")
     public ResponseEntity<List<CourseListResponse>> getMyCourses(Authentication authentication) {
-        String professorEmail = authentication.getName();
-        List<CourseListResponse> courses = courseService.getCoursesByProfessor(professorEmail);
+        String userEmail = authentication.getName();
+        List<CourseListResponse> courses = courseService.getMyCourses(userEmail);
         return ResponseEntity.ok(courses);
     }
     @PutMapping("/{id}")

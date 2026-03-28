@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, CheckSquare, FileText, Bell, MessageCircle, GraduationCap, Shield, LogOut } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 function Navbar({ user, onLogout }) {
   const isAdmin = user.role === 'ADMIN';
@@ -78,6 +79,7 @@ function Navbar({ user, onLogout }) {
 
           {/* User Info */}
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <div className="text-right">
               <div className="text-sm font-medium text-gray-900">{user.name}</div>
               <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500'}`}>

@@ -1,5 +1,6 @@
 package com.promonts.service;
 import com.promonts.domain.course.Course;
+import com.promonts.domain.enrollment.CourseEnrollment;
 import com.promonts.domain.user.User;
 import com.promonts.dto.*;
 import com.promonts.repository.*;
@@ -13,6 +14,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final WeekService weekService;
+    private final CourseEnrollmentRepository enrollmentRepository;
     @Transactional
     public CourseResponse createCourse(CourseRequest request, String professorEmail) {
         User professor = userRepository.findByEmail(professorEmail)
@@ -47,6 +49,20 @@ public class CourseService {
         User professor = userRepository.findByEmail(professorEmail)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
         return courseRepository.findByProfessor(professor).stream().map(CourseListResponse::from).collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<CourseListResponse> getMyCourses(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
+        
+        if (user.getRole() == User.Role.PROFESSOR) {
+            return courseRepository.findByProfessor(user).stream().map(CourseListResponse::from).collect(Collectors.toList());
+        } else {
+            // 학생: 수강 중인 강의 목록
+            List<CourseEnrollment> enrollments = enrollmentRepository.findByUserId(user.getId());
+            return enrollments.stream().map(e -> CourseListResponse.from(e.getCourse())).collect(Collectors.toList());
+        }
     }
     @Transactional
     public CourseResponse updateCourse(Long courseId, CourseRequest request, String professorEmail) {
