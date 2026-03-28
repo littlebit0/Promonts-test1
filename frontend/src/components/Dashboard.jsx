@@ -10,7 +10,9 @@ function Dashboard({ user }) {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
-  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [showAssignmentDetailModal, setShowAssignmentDetailModal] = useState(false);
+  const [showTodoDetailModal, setShowTodoDetailModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -50,10 +52,21 @@ function Dashboard({ user }) {
     try {
       const response = await assignmentAPI.getById(assignmentId);
       setSelectedAssignment(response.data);
-      setShowAssignmentModal(true);
+      setShowAssignmentDetailModal(true);
     } catch (error) {
       console.error('Failed to load assignment:', error);
       alert('과제 정보를 불러올 수 없습니다.');
+    }
+  };
+
+  const handleTodoClick = (todo) => {
+    // 과제 Todo면 과제 상세로
+    if (todo.assignmentId) {
+      handleAssignmentClick(todo.assignmentId);
+    } else {
+      // 일반 Todo면 Todo 상세 모달
+      setSelectedTodo(todo);
+      setShowTodoDetailModal(true);
     }
   };
 
@@ -200,7 +213,8 @@ function Dashboard({ user }) {
             todos.slice(0, 10).map((todo) => (
               <div
                 key={todo.id}
-                className={`group border-2 rounded-lg p-4 transition-all ${
+                onClick={() => handleTodoClick(todo)}
+                className={`group border-2 rounded-lg p-4 transition-all cursor-pointer ${
                   todo.completed
                     ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 opacity-60'
                     : 'border-gray-100 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900'
@@ -210,7 +224,10 @@ function Dashboard({ user }) {
                   <input
                     type="checkbox"
                     checked={todo.completed}
-                    onChange={() => handleToggleTodo(todo.id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      handleToggleTodo(todo.id);
+                    }}
                     disabled={todo.title && todo.title.startsWith('[과제]')}
                     className={`mt-1 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 ${
                       todo.title && todo.title.startsWith('[과제]') 
@@ -296,20 +313,20 @@ function Dashboard({ user }) {
       )}
 
       {/* Assignment Detail Modal */}
-      {showAssignmentModal && selectedAssignment && (
+      {showAssignmentDetailModal && selectedAssignment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900">{selectedAssignment.title}</h2>
-                <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedAssignment.title}</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   {selectedAssignment.course?.name} ({selectedAssignment.course?.code})
                 </p>
               </div>
               <button
-                onClick={() => setShowAssignmentModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                onClick={() => setShowAssignmentDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -317,8 +334,8 @@ function Dashboard({ user }) {
 
             <div className="p-6 space-y-6">
               {/* Due Date */}
-              <div className="bg-accent-50 border-l-4 border-accent-500 rounded-r-lg p-4">
-                <div className="flex items-center gap-2 text-accent-700 font-bold">
+              <div className="bg-accent-50 dark:bg-accent-900 border-l-4 border-accent-500 rounded-r-lg p-4">
+                <div className="flex items-center gap-2 text-accent-700 dark:text-accent-300 font-bold">
                   <Calendar className="w-5 h-5" />
                   마감일: {new Date(selectedAssignment.dueDate).toLocaleString('ko-KR', {
                     year: 'numeric',
@@ -332,7 +349,7 @@ function Dashboard({ user }) {
                   <p className="text-sm text-red-600 font-medium mt-2">⚠️ 마감일이 지났습니다!</p>
                 )}
                 {new Date(selectedAssignment.dueDate) > new Date() && (
-                  <p className="text-sm text-gray-600 mt-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                     남은 시간: {Math.ceil((new Date(selectedAssignment.dueDate) - new Date()) / (1000 * 60 * 60 * 24))}일
                   </p>
                 )}
@@ -340,9 +357,9 @@ function Dashboard({ user }) {
 
               {/* Description */}
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">과제 내용</h3>
-                <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedAssignment.description}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">과제 내용</h3>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedAssignment.description}</p>
                 </div>
               </div>
 
@@ -350,7 +367,7 @@ function Dashboard({ user }) {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => {
-                    setShowAssignmentModal(false);
+                    setShowAssignmentDetailModal(false);
                     navigate(`/course/${selectedAssignment.course?.id}`);
                   }}
                   className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all"
@@ -358,8 +375,96 @@ function Dashboard({ user }) {
                   강의 페이지로 이동
                 </button>
                 <button
-                  onClick={() => setShowAssignmentModal(false)}
-                  className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                  onClick={() => setShowAssignmentDetailModal(false)}
+                  className="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-all"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Todo Detail Modal */}
+      {showTodoDetailModal && selectedTodo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedTodo.title}</h2>
+                {selectedTodo.courseName && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" />
+                    {selectedTodo.courseName}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowTodoDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Due Date */}
+              {selectedTodo.dueDate && (
+                <div className="bg-accent-50 dark:bg-accent-900 border-l-4 border-accent-500 rounded-r-lg p-4">
+                  <div className="flex items-center gap-2 text-accent-700 dark:text-accent-300 font-bold">
+                    <Calendar className="w-5 h-5" />
+                    마감일: {new Date(selectedTodo.dueDate).toLocaleString('ko-KR')}
+                  </div>
+                </div>
+              )}
+
+              {/* Priority */}
+              {selectedTodo.priority && (
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-gray-900 dark:text-gray-100">우선순위:</span>
+                  <span
+                    className={`px-3 py-1 rounded-full font-medium ${
+                      selectedTodo.priority === 'HIGH'
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                        : selectedTodo.priority === 'MEDIUM'
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }`}
+                  >
+                    {selectedTodo.priority === 'HIGH' ? '높음' : selectedTodo.priority === 'MEDIUM' ? '보통' : '낮음'}
+                  </span>
+                </div>
+              )}
+
+              {/* Status */}
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-gray-900 dark:text-gray-100">상태:</span>
+                <span
+                  className={`px-3 py-1 rounded-full font-medium ${
+                    selectedTodo.completed
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                  }`}
+                >
+                  {selectedTodo.completed ? '완료' : '진행 중'}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    handleToggleTodo(selectedTodo.id);
+                    setShowTodoDetailModal(false);
+                  }}
+                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all"
+                >
+                  {selectedTodo.completed ? '미완료로 변경' : '완료로 변경'}
+                </button>
+                <button
+                  onClick={() => setShowTodoDetailModal(false)}
+                  className="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-all"
                 >
                   닫기
                 </button>

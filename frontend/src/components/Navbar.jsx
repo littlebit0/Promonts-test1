@@ -39,6 +39,13 @@ function Navbar({ user, onLogout }) {
                   대시보드
                 </Link>
                 <Link
+                  to="/todos"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
+                >
+                  <CheckSquare className="w-4 h-4" />
+                  Todo
+                </Link>
+                <Link
                   to="/grades"
                   className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
