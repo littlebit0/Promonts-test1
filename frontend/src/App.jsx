@@ -10,6 +10,14 @@ import AcademicPage from './pages/AcademicPage';
 import NoticesPage from './pages/NoticesPage';
 import ChatPage from './pages/ChatPage';
 import AdminPage from './pages/AdminPage';
+import NotificationsPage from './pages/NotificationsPage';
+import ProfilePage from './pages/ProfilePage';
+import GradesPage from './pages/GradesPage';
+import CalendarPage from './pages/CalendarPage';
+import AttendancePage from './pages/AttendancePage';
+import ExamsPage from './pages/ExamsPage';
+import SearchPage from './pages/SearchPage';
+import StatsPage from './pages/StatsPage';
 import './index.css';
 
 function App() {
@@ -59,6 +67,14 @@ function App() {
               <Route path="academic" element={<AcademicPage user={user} />} />
               <Route path="notices" element={<NoticesPage user={user} />} />
               <Route path="chat" element={<ChatPage user={user} />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="grades" element={<GradesPage />} />
+              <Route path="calendar" element={<CalendarPage />} />
+              <Route path="attendance" element={<AttendancePage />} />
+              <Route path="exams" element={<ExamsPage />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="stats" element={<StatsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
           )}

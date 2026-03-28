@@ -99,6 +99,131 @@ export const weekAPI = {
   updateDescription: (weekId, description) => api.put(`/courses/${courseId}/weeks/${weekId}/description`, description),
 };
 
+// Enrollment API
+export const enrollmentAPI = {
+  enroll: (courseId) => api.post('/enrollments', { courseId }),
+  unenroll: (courseId) => api.delete(`/enrollments/${courseId}`),
+  getEnrollments: (courseId) => api.get(`/enrollments/course/${courseId}`),
+  checkEnrollment: (courseId) => api.get(`/enrollments/course/${courseId}/check`),
+};
+
+// Search API
+export const searchAPI = {
+  search: (query) => api.get('/search', { params: { query } }),
+  searchCourses: (query) => api.get('/search/courses', { params: { query } }),
+  searchNotices: (query) => api.get('/search/notices', { params: { query } }),
+  searchAssignments: (query) => api.get('/search/assignments', { params: { query } }),
+};
+
+// Attendance API
+export const attendanceAPI = {
+  createSession: (courseId, durationMinutes = 10) => api.post('/attendance/session', null, { params: { courseId, durationMinutes } }),
+  checkAttendance: (qrCode) => api.post('/attendance/check', null, { params: { qrCode } }),
+  getCourseAttendances: (courseId) => api.get(`/attendance/course/${courseId}`),
+  getMyAttendances: () => api.get('/attendance/my'),
+  getActiveSession: (courseId) => api.get(`/attendance/session/${courseId}`),
+};
+
+// Exam API
+export const examAPI = {
+  create: (courseId, data) => api.post(`/exams/course/${courseId}`, data),
+  update: (examId, data) => api.put(`/exams/${examId}`, data),
+  delete: (examId) => api.delete(`/exams/${examId}`),
+  getByCourse: (courseId) => api.get(`/exams/course/${courseId}`),
+  getUpcoming: (courseId) => api.get(`/exams/course/${courseId}/upcoming`),
+  getById: (examId) => api.get(`/exams/${examId}`),
+};
+
+// Notification API
+export const notificationAPI = {
+  getAll: () => api.get('/notifications'),
+  getUnread: () => api.get('/notifications/unread'),
+  getUnreadCount: () => api.get('/notifications/unread/count'),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => api.patch('/notifications/read-all'),
+  delete: (id) => api.delete(`/notifications/${id}`),
+};
+
+// Profile API
+export const profileAPI = {
+  get: () => api.get('/profile'),
+  update: (data) => api.put('/profile', data),
+  changePassword: (oldPassword, newPassword) => api.post('/profile/password', null, { params: { oldPassword, newPassword } }),
+};
+
+// Tag API
+export const tagAPI = {
+  getAll: () => api.get('/tags'),
+  getById: (id) => api.get(`/tags/${id}`),
+  create: (name, color) => api.post('/tags', null, { params: { name, color } }),
+  update: (id, name, color) => api.put(`/tags/${id}`, null, { params: { name, color } }),
+  delete: (id) => api.delete(`/tags/${id}`),
+};
+
+// Comment API
+export const commentAPI = {
+  create: (entityType, entityId, content, parentId = null) => 
+    api.post('/comments', null, { params: { entityType, entityId, content, parentId } }),
+  update: (id, content) => api.put(`/comments/${id}`, null, { params: { content } }),
+  delete: (id) => api.delete(`/comments/${id}`),
+  getByEntity: (entityType, entityId) => api.get('/comments', { params: { entityType, entityId } }),
+  getRootComments: (entityType, entityId) => api.get('/comments/root', { params: { entityType, entityId } }),
+  getReplies: (parentId) => api.get(`/comments/${parentId}/replies`),
+};
+
+// Grade API
+export const gradeAPI = {
+  createOrUpdate: (userId, courseId, midterm, finalScore, assignment, attendance) =>
+    api.post('/grades', null, { params: { userId, courseId, midterm, finalScore, assignment, attendance } }),
+  getMy: () => api.get('/grades/my'),
+  getByCourse: (courseId) => api.get(`/grades/course/${courseId}`),
+  get: (userId, courseId) => api.get(`/grades/user/${userId}/course/${courseId}`),
+};
+
+// Schedule API
+export const scheduleAPI = {
+  create: (data, courseId = null) => api.post('/schedules', data, { params: { courseId } }),
+  update: (id, data) => api.put(`/schedules/${id}`, data),
+  delete: (id) => api.delete(`/schedules/${id}`),
+  getMy: () => api.get('/schedules'),
+  getByRange: (start, end) => api.get('/schedules/range', { params: { start, end } }),
+  getById: (id) => api.get(`/schedules/${id}`),
+};
+
+// Bookmark API
+export const bookmarkAPI = {
+  add: (entityType, entityId) => api.post('/bookmarks', null, { params: { entityType, entityId } }),
+  remove: (entityType, entityId) => api.delete('/bookmarks', { params: { entityType, entityId } }),
+  getAll: () => api.get('/bookmarks'),
+  getByType: (entityType) => api.get(`/bookmarks/type/${entityType}`),
+  check: (entityType, entityId) => api.get('/bookmarks/check', { params: { entityType, entityId } }),
+};
+
+// Statistics API
+export const statisticsAPI = {
+  getAdmin: () => api.get('/statistics/admin'),
+  getUser: () => api.get('/statistics/user'),
+};
+
+// Activity Log API
+export const activityLogAPI = {
+  getMy: () => api.get('/logs/my'),
+  getAll: () => api.get('/logs/all'),
+  getByRange: (start, end) => api.get('/logs/range', { params: { start, end } }),
+};
+
+// Timeline API
+export const timelineAPI = {
+  getMy: () => api.get('/timeline'),
+};
+
+// Backup API
+export const backupAPI = {
+  create: () => api.post('/backup/create'),
+  restore: (filepath) => api.post('/backup/restore', null, { params: { filepath } }),
+  list: () => api.get('/backup/list'),
+};
+
 // Material API
 export const materialAPI = {
   upload: (courseId, weekNumber, formData) => {
