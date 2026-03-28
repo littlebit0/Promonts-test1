@@ -41,15 +41,13 @@ export default function GradesPage() {
           <Award className="w-8 h-8 text-blue-600" />
           성적
         </h1>
-        {grades.length > 0 && (
-          <button
-            onClick={() => setShowCharts(!showCharts)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            <BarChart3 className="w-5 h-5" />
-            {showCharts ? '그래프 숨기기' : '그래프 보기'}
-          </button>
-        )}
+        <button
+          onClick={() => setShowCharts(!showCharts)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          <BarChart3 className="w-5 h-5" />
+          {showCharts ? '그래프 숨기기' : '그래프 보기'}
+        </button>
       </div>
 
       {grades.length === 0 ? (

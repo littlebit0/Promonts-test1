@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, CheckSquare, FileText, Bell, MessageCircle, GraduationCap, Shield, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, CheckSquare, Award, Calendar, UserCircle, Search, Shield, LogOut } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 function Navbar({ user, onLogout }) {
   const isAdmin = user.role === 'ADMIN';
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -23,7 +23,7 @@ function Navbar({ user, onLogout }) {
               // 관리자 전용 메뉴
               <Link
                 to="/admin"
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg font-medium transition-all"
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg font-medium transition-all"
               >
                 <Shield className="w-4 h-4" />
                 관리자
@@ -33,45 +33,52 @@ function Navbar({ user, onLogout }) {
               <>
                 <Link
                   to="/"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   대시보드
                 </Link>
                 <Link
                   to="/courses"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
                   <BookOpen className="w-4 h-4" />
                   강의
                 </Link>
                 <Link
                   to="/todos"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
                   <CheckSquare className="w-4 h-4" />
                   할 일
                 </Link>
                 <Link
-                  to="/academic"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  to="/grades"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
-                  <GraduationCap className="w-4 h-4" />
-                  학사행정
+                  <Award className="w-4 h-4" />
+                  성적
                 </Link>
                 <Link
-                  to="/notices"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  to="/calendar"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
-                  <Bell className="w-4 h-4" />
-                  공지사항
+                  <Calendar className="w-4 h-4" />
+                  일정
                 </Link>
                 <Link
-                  to="/chat"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition-all"
+                  to="/profile"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  채팅
+                  <UserCircle className="w-4 h-4" />
+                  프로필
+                </Link>
+                <Link
+                  to="/search"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition-all"
+                >
+                  <Search className="w-4 h-4" />
+                  검색
                 </Link>
               </>
             )}
@@ -81,14 +88,14 @@ function Navbar({ user, onLogout }) {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <div className="text-right">
-              <div className="text-sm font-medium text-gray-900">{user.name}</div>
-              <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
+              <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
                 {user.role === 'ADMIN' ? '관리자' : user.role === 'PROFESSOR' ? '교수' : '학생'}
               </div>
             </div>
             <button
               onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-all"
             >
               <LogOut className="w-4 h-4" />
               로그아웃
