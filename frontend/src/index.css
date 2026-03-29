@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@config "../tailwind.config.js";
+
 @theme {
   --color-primary-50: #EFF6FF;
   --color-primary-100: #DBEAFE;
@@ -191,4 +193,14 @@
 /* 로딩 스켈레톤 (다크모드) */
 .dark .animate-pulse .bg-gray-200 {
   background-color: var(--bg-tertiary) !important;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
 }
