@@ -114,12 +114,21 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {schedules.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">등록된 일정이 없습니다</div>
+      {viewMode === 'calendar' ? (
+        <>
+          <SimpleCalendar
+            schedules={schedules}
+            onDateClick={handleDateClick}
+            onScheduleClick={handleScheduleClick}
+          />
+          {schedules.length === 0 && (
+            <p className="text-center text-gray-400 dark:text-gray-500 text-sm mt-4">날짜를 클릭해 일정을 추가해보세요 ✨</p>
+          )}
+        </>
       ) : (
         <>
-          {viewMode === 'calendar' ? (
-            <SimpleCalendar schedules={schedules} onDateClick={handleDateClick} />
+          {schedules.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">등록된 일정이 없습니다</div>
           ) : (
             <div className="space-y-4">
               {schedules.map((schedule) => (

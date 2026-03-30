@@ -85,7 +85,7 @@ export default function GradesPage() {
             {grades.map((grade) => (
               <div key={grade.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold">{grade.course.name}</h3>
+                  <h3 className="text-xl font-bold">{grade.courseName}</h3>
                   <div className={`px-4 py-2 rounded-full font-bold text-lg ${getGradeColor(grade.letterGrade)}`}>
                     {grade.letterGrade || 'N/A'}
                   </div>
