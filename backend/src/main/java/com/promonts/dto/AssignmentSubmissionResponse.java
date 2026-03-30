@@ -15,8 +15,11 @@ public class AssignmentSubmissionResponse {
     private String assignmentTitle;
     private Long userId;
     private String userName;
+    private String studentName;
+    private String studentEmail;
     private String content;
     private String fileName;
+    private String filePath;
     private Long fileSize;
     private LocalDateTime submittedAt;
     private Boolean isLate;
@@ -30,8 +33,11 @@ public class AssignmentSubmissionResponse {
                 .assignmentTitle(submission.getAssignment().getTitle())
                 .userId(submission.getUser().getId())
                 .userName(submission.getUser().getName())
+                .studentName(submission.getUser().getName())
+                .studentEmail(submission.getUser().getEmail())
                 .content(submission.getContent())
                 .fileName(submission.getFileName())
+                .filePath(submission.getFilePath())
                 .fileSize(submission.getFileSize())
                 .submittedAt(submission.getSubmittedAt())
                 .isLate(submission.getIsLate())

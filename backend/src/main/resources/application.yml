@@ -16,6 +16,8 @@ jwt:
 
 file:
   upload-dir: uploads/materials
+  submission-dir: uploads/submissions
+  chat-dir: uploads/chat
 
 server:
   port: ${PORT:8080}

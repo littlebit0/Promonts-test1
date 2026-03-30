@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { courseAPI, assignmentAPI, submissionAPI } from '../services/api';
-import { FileText, Plus, Trash2, Calendar, BookOpen, AlertCircle, Upload, CheckCircle, Users, X, Download } from 'lucide-react';
+import { FileText, Plus, Trash2, Calendar, BookOpen, AlertCircle, Upload, CheckCircle, Users, X, Download, Star } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 function AssignmentsPage({ user }) {
   const [courses, setCourses] = useState([]);
@@ -26,6 +28,8 @@ function AssignmentsPage({ user }) {
   const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
   const [submissionsList, setSubmissionsList] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [gradingId, setGradingId] = useState(null); // 채점 중인 submissionId
+  const [gradeInput, setGradeInput] = useState({ score: '', feedback: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
   const isStudent = user.role === 'STUDENT';
@@ -154,6 +158,7 @@ function AssignmentsPage({ user }) {
     setSelectedAssignment(assignment);
     setShowSubmissionsModal(true);
     setLoadingSubmissions(true);
+    setGradingId(null);
     try {
       const response = await submissionAPI.getByAssignment(assignment.id);
       setSubmissionsList(response.data);
@@ -161,6 +166,21 @@ function AssignmentsPage({ user }) {
       console.error('Failed to load submissions:', error);
     } finally {
       setLoadingSubmissions(false);
+    }
+  };
+
+  // 교수: 채점
+  const handleGrade = async (submissionId) => {
+    if (!gradeInput.score && gradeInput.score !== 0) { alert('점수를 입력하세요.'); return; }
+    try {
+      await submissionAPI.grade(submissionId, gradeInput.score, gradeInput.feedback);
+      setSubmissionsList(prev => prev.map(s =>
+        s.id === submissionId ? { ...s, score: parseInt(gradeInput.score), feedback: gradeInput.feedback } : s
+      ));
+      setGradingId(null);
+      setGradeInput({ score: '', feedback: '' });
+    } catch (e) {
+      alert('채점에 실패했습니다.');
     }
   };
 
@@ -520,27 +540,73 @@ function AssignmentsPage({ user }) {
                 <div className="space-y-3">
                   {submissionsList.map((sub) => (
                     <div key={sub.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-bold text-gray-800 dark:text-white">{sub.studentName || sub.studentEmail}</p>
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-gray-800 dark:text-white">{sub.studentName || sub.userName}</p>
                           <p className="text-xs text-gray-400 mt-0.5">
                             {new Date(sub.submittedAt).toLocaleString('ko-KR')}
+                            {sub.isLate && <span className="ml-2 text-red-500 font-bold">지각 제출</span>}
                           </p>
                           {sub.content && (
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{sub.content}</p>
                           )}
                           {sub.fileName && (
-                            <p className="text-sm text-blue-600 mt-1 flex items-center gap-1">
-                              <Download className="w-3 h-3" />
-                              {sub.fileName}
-                            </p>
+                            <a
+                              href={`${API_BASE}/submissions/${sub.id}/download`}
+                              target="_blank" rel="noreferrer"
+                              className="text-sm text-blue-600 hover:underline mt-1 flex items-center gap-1 w-fit"
+                            >
+                              <Download className="w-3 h-3" />{sub.fileName}
+                            </a>
                           )}
                         </div>
-                        <div className="ml-4 text-right">
-                          {sub.score !== null && sub.score !== undefined ? (
-                            <span className="text-lg font-bold text-green-600">{sub.score}점</span>
+
+                        {/* 채점 영역 */}
+                        <div className="shrink-0 text-right">
+                          {gradingId === sub.id ? (
+                            <div className="flex flex-col gap-2 items-end">
+                              <input
+                                type="number" min="0" max="100"
+                                value={gradeInput.score}
+                                onChange={e => setGradeInput(p => ({ ...p, score: e.target.value }))}
+                                placeholder="점수"
+                                className="w-20 px-2 py-1 text-sm border-2 border-blue-300 rounded-lg dark:bg-gray-600 dark:text-white text-center"
+                              />
+                              <input
+                                type="text"
+                                value={gradeInput.feedback}
+                                onChange={e => setGradeInput(p => ({ ...p, feedback: e.target.value }))}
+                                placeholder="피드백 (선택)"
+                                className="w-40 px-2 py-1 text-sm border border-gray-300 rounded-lg dark:bg-gray-600 dark:text-white"
+                              />
+                              <div className="flex gap-1">
+                                <button onClick={() => handleGrade(sub.id)}
+                                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition">
+                                  저장
+                                </button>
+                                <button onClick={() => setGradingId(null)}
+                                  className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-lg hover:bg-gray-300 transition">
+                                  취소
+                                </button>
+                              </div>
+                            </div>
                           ) : (
-                            <span className="text-xs text-gray-400">미채점</span>
+                            <div className="flex flex-col items-end gap-1">
+                              {sub.score !== null && sub.score !== undefined ? (
+                                <>
+                                  <span className="text-lg font-bold text-green-600">{sub.score}점</span>
+                                  {sub.feedback && <p className="text-xs text-gray-500 max-w-[120px] text-right">{sub.feedback}</p>}
+                                </>
+                              ) : (
+                                <span className="text-xs text-gray-400">미채점</span>
+                              )}
+                              <button
+                                onClick={() => { setGradingId(sub.id); setGradeInput({ score: sub.score ?? '', feedback: sub.feedback ?? '' }); }}
+                                className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition mt-1"
+                              >
+                                <Star className="w-3 h-3" />채점
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>

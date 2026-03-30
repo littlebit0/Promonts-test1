@@ -34,7 +34,7 @@ public class AssignmentSubmissionService {
     private final UserRepository userRepository;
     private final TodoRepository todoRepository;
     
-    @Value("${file.upload-dir:uploads/submissions}")
+    @Value("${file.submission-dir:uploads/submissions}")
     private String uploadDir;
     
     @Transactional
@@ -114,6 +114,13 @@ public class AssignmentSubmissionService {
                 .orElse(null);
     }
     
+    @Transactional(readOnly = true)
+    public AssignmentSubmissionResponse getSubmissionById(Long submissionId) {
+        return submissionRepository.findById(submissionId)
+                .map(AssignmentSubmissionResponse::from)
+                .orElse(null);
+    }
+
     @Transactional
     public void gradeSubmission(Long submissionId, Integer score, String feedback) {
         AssignmentSubmission submission = submissionRepository.findById(submissionId)
