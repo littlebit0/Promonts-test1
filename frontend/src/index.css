@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: darkMode 'class' 설정 */
+@variant dark (&:where(.dark, .dark *));
+
 @config "../tailwind.config.js";
 
 @theme {
