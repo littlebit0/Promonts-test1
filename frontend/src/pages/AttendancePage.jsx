@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, QrCode, Clock, X, AlertCircle, Users } from 'lucide-react';
-import { attendanceAPI, courseAPI } from '../services/api';
+import { CheckCircle, Users } from 'lucide-react';
+import { attendanceAPI } from '../services/api';
 
 const STATUS_MAP = {
   PRESENT: { label: '출석', color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' },
@@ -8,25 +8,12 @@ const STATUS_MAP = {
   ABSENT: { label: '결석', color: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' },
 };
 
-export default function AttendancePage({ user }) {
+export default function AttendancePage() {
   const [attendances, setAttendances] = useState([]);
-  const [qrCode, setQrCode] = useState('');
   const [loading, setLoading] = useState(true);
-  const [checkResult, setCheckResult] = useState(null); // null | 'success' | 'fail'
-  const [checkMsg, setCheckMsg] = useState('');
-
-  // Professor states
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [duration, setDuration] = useState(10);
-  const [activeSession, setActiveSession] = useState(null);
-  const [sessionLoading, setSessionLoading] = useState(false);
-
-  const isProfessor = user?.role === 'PROFESSOR';
 
   useEffect(() => {
     fetchAttendances();
-    if (isProfessor) fetchCourses();
   }, []);
 
   const fetchAttendances = async () => {
@@ -40,43 +27,7 @@ export default function AttendancePage({ user }) {
     }
   };
 
-  const fetchCourses = async () => {
-    try {
-      const res = await courseAPI.getMy();
-      setCourses(res.data);
-    } catch (error) {
-      console.error('Failed to fetch courses:', error);
-    }
-  };
-
-  const handleCreateSession = async () => {
-    if (!selectedCourse) { alert('강의를 선택하세요'); return; }
-    setSessionLoading(true);
-    try {
-      const res = await attendanceAPI.createSession(selectedCourse, duration);
-      setActiveSession(res.data);
-    } catch (error) {
-      alert('세션 생성 실패: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setSessionLoading(false);
-    }
-  };
-
-  const handleCheckAttendance = async () => {
-    if (!qrCode.trim()) { alert('QR 코드를 입력하세요'); return; }
-    try {
-      await attendanceAPI.checkAttendance(qrCode);
-      setCheckResult('success');
-      setCheckMsg('출석이 완료되었습니다! ✅');
-      setQrCode('');
-      fetchAttendances();
-    } catch (error) {
-      setCheckResult('fail');
-      setCheckMsg('출석 체크 실패: ' + (error.response?.data?.error || error.message));
-    }
-  };
-
-  // Stats
+  // 통계
   const stats = attendances.reduce((acc, a) => {
     const status = a.status || 'ABSENT';
     acc[status] = (acc[status] || 0) + 1;
@@ -94,14 +45,14 @@ export default function AttendancePage({ user }) {
         출석
       </h1>
 
-      {/* Stats Cards */}
+      {/* 통계 카드 */}
       {total > 0 && (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             {[
               { key: 'PRESENT', label: '출석', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
-              { key: 'LATE', label: '지각', color: 'text-yellow-600', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-              { key: 'ABSENT', label: '결석', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' },
+              { key: 'LATE',    label: '지각', color: 'text-yellow-600', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+              { key: 'ABSENT',  label: '결석', color: 'text-red-600',   bg: 'bg-red-50 dark:bg-red-900/20' },
             ].map(({ key, label, color, bg }) => (
               <div key={key} className={`${bg} rounded-xl p-4 text-center`}>
                 <div className={`text-3xl font-bold ${color}`}>{stats[key] || 0}</div>
@@ -124,115 +75,11 @@ export default function AttendancePage({ user }) {
         </div>
       )}
 
-      {/* Professor: QR Session Creation */}
-      {isProfessor && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-4">
-          <h2 className="font-bold text-xl flex items-center gap-2 dark:text-white">
-            <QrCode className="w-6 h-6 text-blue-600" />
-            QR 출석 세션 생성
-          </h2>
-          <div className="flex gap-3 flex-wrap">
-            <select
-              value={selectedCourse}
-              onChange={e => setSelectedCourse(e.target.value)}
-              className="flex-1 px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:border-blue-500"
-            >
-              <option value="">강의 선택</option>
-              {courses.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              <input
-                type="number"
-                min="1"
-                max="60"
-                value={duration}
-                onChange={e => setDuration(Number(e.target.value))}
-                className="w-20 px-3 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:border-blue-500"
-              />
-              <span className="text-sm text-gray-500 dark:text-gray-400">분</span>
-            </div>
-            <button
-              onClick={handleCreateSession}
-              disabled={sessionLoading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-            >
-              <QrCode className="w-5 h-5" />
-              {sessionLoading ? '생성 중...' : 'QR 생성'}
-            </button>
-          </div>
-
-          {activeSession && (
-            <div className="mt-4 text-center space-y-3">
-              <div className="inline-block p-6 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border-4 border-blue-500">
-                <div className="text-5xl mb-2">📱</div>
-                <div className="text-3xl font-mono font-bold text-blue-600 dark:text-blue-400 tracking-widest">
-                  {activeSession.qrCode}
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                학생들이 이 코드를 입력하여 출석 체크를 합니다
-              </p>
-              <div className="flex items-center justify-center gap-2 text-sm text-yellow-600 dark:text-yellow-400">
-                <Clock className="w-4 h-4" />
-                유효 시간: {duration}분
-              </div>
-              <button
-                onClick={() => setActiveSession(null)}
-                className="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-1 mx-auto"
-              >
-                <X className="w-4 h-4" />닫기
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Student: QR Check */}
-      {!isProfessor && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-4">
-          <h2 className="font-bold text-xl flex items-center gap-2 dark:text-white">
-            <QrCode className="w-6 h-6 text-blue-600" />
-            QR 출석 체크
-          </h2>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={qrCode}
-              onChange={(e) => { setQrCode(e.target.value); setCheckResult(null); }}
-              onKeyDown={e => e.key === 'Enter' && handleCheckAttendance()}
-              placeholder="QR 코드 입력 후 Enter 또는 출석 버튼"
-              className="flex-1 px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-            <button
-              onClick={handleCheckAttendance}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              출석
-            </button>
-          </div>
-          {checkResult && (
-            <div className={`flex items-center gap-3 p-4 rounded-lg ${
-              checkResult === 'success'
-                ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-            }`}>
-              {checkResult === 'success'
-                ? <CheckCircle className="w-6 h-6 flex-shrink-0" />
-                : <AlertCircle className="w-6 h-6 flex-shrink-0" />
-              }
-              <span className="font-medium">{checkMsg}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Attendance Records Table */}
+      {/* 출석 기록 */}
       <div>
         <h2 className="font-bold text-xl mb-4 dark:text-white flex items-center gap-2">
-          <Users className="w-5 h-5" />출석 기록
+          <Users className="w-5 h-5" />
+          출석 기록
         </h2>
         {attendances.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow">
