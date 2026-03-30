@@ -18,7 +18,7 @@ const ChatPage = lazy(() => import('./pages/ChatPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const GradesPage = lazy(() => import('./pages/GradesPage')); // legacy, redirect to academic
+const AssignmentsPage = lazy(() => import('./pages/AssignmentsPage'));
 const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 const AttendancePage = lazy(() => import('./pages/AttendancePage'));
 const ExamsPage = lazy(() => import('./pages/ExamsPage'));
@@ -90,6 +90,7 @@ function App() {
                       <Route path="courses" element={<CoursesPage user={user} />} />
                       <Route path="course/:courseId" element={<CourseDetailPage user={user} />} />
                       <Route path="todos" element={<TodosPage />} />
+                      <Route path="assignments" element={<AssignmentsPage user={user} />} />
                       <Route path="academic" element={<AcademicPage user={user} />} />
                       <Route path="notices" element={<NoticesPage user={user} />} />
                       <Route path="chat" element={<ChatPage user={user} />} />

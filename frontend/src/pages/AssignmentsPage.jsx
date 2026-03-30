@@ -335,25 +335,19 @@ function AssignmentsPage({ user }) {
                         {!isSubmitted ? (
                           <button
                             onClick={() => openSubmitModal(assignment)}
-                            disabled={isOverdue}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
                               isOverdue
-                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                ? 'bg-red-600 text-white hover:bg-red-700 shadow'
                                 : 'bg-accent-600 text-white hover:bg-accent-700 shadow'
                             }`}
                           >
                             <Upload className="w-4 h-4" />
-                            제출하기
+                            {isOverdue ? '지각 제출' : '제출하기'}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDeleteSubmission(mySubmission.id, assignment.id)}
-                            disabled={isOverdue}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
-                              isOverdue
-                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800'
-                            }`}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800"
                           >
                             <X className="w-4 h-4" />
                             제출 취소
@@ -539,13 +533,21 @@ function AssignmentsPage({ user }) {
               ) : (
                 <div className="space-y-3">
                   {submissionsList.map((sub) => (
-                    <div key={sub.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <div key={sub.id} className={`p-4 rounded-xl border ${
+                      sub.isLate
+                        ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                        : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+                    }`}>
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-gray-800 dark:text-white">{sub.studentName || sub.userName}</p>
                           <p className="text-xs text-gray-400 mt-0.5">
                             {new Date(sub.submittedAt).toLocaleString('ko-KR')}
-                            {sub.isLate && <span className="ml-2 text-red-500 font-bold">지각 제출</span>}
+                            {sub.isLate && (
+                              <span className="ml-2 inline-flex items-center gap-0.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                ⚠️ 지각 제출
+                              </span>
+                            )}
                           </p>
                           {sub.content && (
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{sub.content}</p>
