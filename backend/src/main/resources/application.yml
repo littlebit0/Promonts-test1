@@ -1,41 +1,24 @@
 spring:
   application:
     name: promonts-backend
-  
-  datasource:
-    url: jdbc:h2:mem:promonts
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-  
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-  
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
 
 jwt:
-  secret: promonts-mvp-secret-key-change-this-in-production-2026
-  expiration: 86400000 # 24시간 (밀리초)
+  secret: ${JWT_SECRET:promonts-mvp-secret-key-change-this-in-production-2026}
+  expiration: 86400000 # 24시간
 
 file:
   upload-dir: uploads/materials
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 springdoc:
   api-docs:
@@ -46,7 +29,61 @@ springdoc:
     tags-sorter: alpha
 
 cors:
-  allowed-origins: http://localhost:5173,http://localhost:3000,http://localhost:8081
-  allowed-methods: GET,POST,PUT,DELETE,PATCH
-  allowed-headers: "*"
-  allow-credentials: true
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+---
+# ===========================
+# 개발 환경 (dev)
+# ===========================
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:mem:promonts
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+---
+# ===========================
+# 프로덕션 환경 (prod)
+# ===========================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  h2:
+    console:
+      enabled: false
