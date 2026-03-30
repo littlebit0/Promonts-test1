@@ -24,10 +24,20 @@ public class ChatMessage {
     @Column(length = 20)
     @Builder.Default
     private MessageType type = MessageType.TEXT;
+
+    @Column(name = "file_url")
+    private String fileUrl;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
     public enum MessageType {
-        TEXT, FILE, SYSTEM
+        TEXT, FILE, IMAGE, SYSTEM
     }
 }
