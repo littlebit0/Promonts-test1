@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { courseAPI, enrollmentAPI } from '../services/api';
 import { BookOpen, Plus, Edit2, Trash2, X, Calendar, User, UserPlus, UserMinus, CheckCircle, Search, Users } from 'lucide-react';
 
@@ -344,7 +344,7 @@ function CoursesPage({ user }) {
 
       {/* 강의 생성/수정 모달 (교수) */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
             <div className="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -441,7 +441,7 @@ function CoursesPage({ user }) {
 
       {/* 수강생 목록 모달 (교수) */}
       {showStudentsModal && selectedCourseForStudents && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
             <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
               <h2 className="text-2xl font-bold flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { todoAPI, courseAPI } from '../services/api';
 import { CheckSquare, Plus, X, Calendar, AlertCircle, BookOpen, Filter } from 'lucide-react';
 
@@ -226,7 +226,7 @@ function TodosPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
             <div className="bg-gradient-to-r from-green-500 to-green-700 text-white p-6 rounded-t-2xl">
               <h2 className="text-2xl font-bold flex items-center gap-2">

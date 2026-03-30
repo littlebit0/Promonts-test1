@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { noticeAPI, courseAPI } from '../services/api';
 import { Bell, Plus, X, Calendar, BookOpen, Filter } from 'lucide-react';
 
@@ -185,7 +185,7 @@ function NoticesPage({ user }) {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -277,7 +277,7 @@ function NoticesPage({ user }) {
 
       {/* Detail Modal */}
       {selectedNotice && !showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
               <div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, CheckSquare, Award, Calendar,
@@ -357,7 +357,7 @@ function Navbar({ user, onLogout }) {
       </header>
 
       {/* 모바일 드로어 오버레이 */}
-      {menuOpen && <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && <div className="fixed inset-0 bg-black/75 z-50 lg:hidden" onClick={() => setMenuOpen(false)} />}
 
       {/* 모바일 드로어 */}
       <div className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>

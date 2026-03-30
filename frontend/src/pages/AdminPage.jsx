@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Shield, Users, BookOpen, FileText, AlertCircle, Trash2, Plus, X, UserPlus } from 'lucide-react';
 import axios from 'axios';
 
@@ -306,7 +306,7 @@ function AdminPage({ user }) {
 
       {/* User Create Modal */}
       {showUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">사용자 추가</h2>

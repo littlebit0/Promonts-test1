@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { courseAPI, assignmentAPI, submissionAPI } from '../services/api';
 import { FileText, Plus, Trash2, Calendar, BookOpen, AlertCircle, Upload, CheckCircle, Users, X, Download, Star } from 'lucide-react';
 
@@ -384,7 +384,7 @@ function AssignmentsPage({ user }) {
 
       {/* 과제 등록 모달 (교수) */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md">
             <div className="bg-gradient-to-r from-accent-500 to-accent-700 text-white p-6 rounded-t-2xl">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -446,7 +446,7 @@ function AssignmentsPage({ user }) {
 
       {/* 과제 제출 모달 (학생) */}
       {showSubmitModal && selectedAssignment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="bg-gradient-to-r from-green-500 to-green-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -510,7 +510,7 @@ function AssignmentsPage({ user }) {
 
       {/* 제출 목록 모달 (교수) */}
       {showSubmissionsModal && selectedAssignment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
             <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
               <h2 className="text-2xl font-bold flex items-center gap-2">

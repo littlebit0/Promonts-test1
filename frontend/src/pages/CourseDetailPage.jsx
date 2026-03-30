@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI, submissionAPI } from '../services/api';
 import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File, CheckCircle, AlertCircle } from 'lucide-react';
@@ -420,7 +420,7 @@ function CourseDetailPage({ user }) {
 
       {/* Material Upload Modal */}
       {showMaterialModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6 border-b">
               <h2 className="text-2xl font-bold text-gray-900">강의 자료 업로드</h2>
@@ -493,7 +493,7 @@ function CourseDetailPage({ user }) {
 
       {/* Assignment Create Modal */}
       {showAssignmentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <div className="p-6 border-b">
               <h2 className="text-2xl font-bold text-gray-900">과제 등록</h2>
@@ -591,7 +591,7 @@ function CourseDetailPage({ user }) {
 
       {/* Assignment Detail Modal */}
       {showAssignmentDetailModal && selectedAssignmentDetail && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 flex justify-between items-start">
               <div className="flex-1">
