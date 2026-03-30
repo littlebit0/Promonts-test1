@@ -15,6 +15,8 @@ public class GradeResponse {
     private Long courseId;
     private String courseName;
     private String courseCode;
+    private String semester;
+    private Integer year;
     private Double midtermScore;
     private Double finalScore;
     private Double assignmentScore;
@@ -29,6 +31,8 @@ public class GradeResponse {
                 .courseId(grade.getCourse().getId())
                 .courseName(grade.getCourse().getName())
                 .courseCode(grade.getCourse().getCode())
+                .semester(grade.getCourse().getSemester())
+                .year(grade.getCourse().getYear())
                 .midtermScore(grade.getMidtermScore())
                 .finalScore(grade.getFinalScore())
                 .assignmentScore(grade.getAssignmentScore())

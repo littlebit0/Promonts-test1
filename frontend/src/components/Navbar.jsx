@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { to: '/todos', icon: CheckSquare, label: 'Todo' },
   { to: '/courses', icon: BookOpen, label: '강의' },
   { to: '/assignments', icon: FileText, label: '과제' },
-  { to: '/grades', icon: Award, label: '성적' },
+  { to: '/academic', icon: Award, label: '학사행정' },
   { to: '/calendar', icon: Calendar, label: '일정' },
   { to: '/attendance', icon: QrCode, label: '출석' },
   { to: '/notices', icon: ClipboardList, label: '공지' },
@@ -24,7 +24,7 @@ const NAV_ITEMS = [
 ];
 
 // 상단 Nav에 표시할 주요 항목 (PC)
-const MAIN_NAV = ['/', '/todos', '/grades', '/calendar', '/search', '/profile'];
+const MAIN_NAV = ['/', '/todos', '/academic', '/calendar', '/search', '/profile'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);

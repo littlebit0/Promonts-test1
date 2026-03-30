@@ -98,12 +98,12 @@ function AcademicPage({ user }) {
   studentInfo.totalCredits = totalCredits;
 
   // 학기 목록 추출 (중복 제거)
-  const semesters = ['all', ...new Set(grades.map(g => g.course?.semester).filter(Boolean))];
+  const semesters = ['all', ...new Set(grades.map(g => g.semester).filter(Boolean))];
 
   // 선택된 학기의 성적 필터링
   const filteredGrades = selectedSemester === 'all' 
     ? grades 
-    : grades.filter(g => g.course?.semester === selectedSemester);
+    : grades.filter(g => g.semester === selectedSemester);
 
   // 학기 탭 스크롤 함수
   const scrollSemesterTabs = (direction) => {
@@ -211,14 +211,14 @@ function AcademicPage({ user }) {
   // 학기별 평점 추이 데이터 (실제 데이터 기반)
   const semesterTrendData = {
     labels: grades.length > 0 
-      ? [...new Set(grades.map(g => `${g.course?.semester || '?'}`))].slice(-6)
+      ? [...new Set(grades.map(g => g.semester))].filter(Boolean).slice(-6)
       : ['1학년\n1학기', '1학년\n2학기'],
     datasets: [
       {
         label: '전체',
         data: grades.length > 0
-          ? [...new Set(grades.map(g => g.course?.semester))].slice(-6).map(sem => {
-              const semGrades = grades.filter(g => g.course?.semester === sem);
+          ? [...new Set(grades.map(g => g.semester))].filter(Boolean).slice(-6).map(sem => {
+              const semGrades = grades.filter(g => g.semester === sem);
               const avg = semGrades.reduce((sum, g) => sum + (g.totalScore || 0), 0) / semGrades.length;
               return avg.toFixed(2);
             })
@@ -234,8 +234,8 @@ function AcademicPage({ user }) {
       {
         label: '전공',
         data: grades.length > 0
-          ? [...new Set(grades.map(g => g.course?.semester))].slice(-6).map(sem => {
-              const semGrades = grades.filter(g => g.course?.semester === sem);
+          ? [...new Set(grades.map(g => g.semester))].filter(Boolean).slice(-6).map(sem => {
+              const semGrades = grades.filter(g => g.semester === sem);
               const avg = semGrades.length > 0 
                 ? semGrades.reduce((sum, g) => sum + (g.totalScore || 0), 0) / semGrades.length 
                 : 0;
@@ -672,7 +672,7 @@ function AcademicPage({ user }) {
                         }`}
                       >
                         <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
-                          {grade.course?.name || '과목명 없음'}
+                          {grade.courseName || '과목명 없음'}
                         </td>
                         <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400">3</td>
                         <td className="py-3 px-4 text-center font-bold text-gray-900 dark:text-gray-100">
