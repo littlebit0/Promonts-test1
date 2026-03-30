@@ -277,40 +277,7 @@ function Dashboard({ user }) {
         </div>
       </div>
 
-      {/* Upcoming Items */}
-      {dashboard?.upcomingItems && dashboard.upcomingItems.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <AlertCircle className="w-6 h-6 text-accent-600" />
-            다가오는 일정
-          </h2>
-          <div className="space-y-3">
-            {dashboard.upcomingItems.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => item.assignmentId && handleAssignmentClick(item.assignmentId)}
-                className={`border-l-4 border-accent-500 bg-accent-50 rounded-r-lg pl-4 pr-6 py-4 transition-colors ${
-                  item.assignmentId ? 'cursor-pointer hover:bg-accent-100' : ''
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-gray-900">{item.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
-                      <BookOpen className="w-4 h-4" />
-                      {item.courseName}
-                    </p>
-                  </div>
-                  <span className="text-sm text-accent-700 font-bold flex items-center gap-1 whitespace-nowrap">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(item.dueDate).toLocaleDateString('ko-KR')}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 다가오는 일정 섹션 제거됨 - 학사행정 페이지에서 확인 */}
 
       {/* Assignment Detail Modal */}
       {showAssignmentDetailModal && selectedAssignment && (

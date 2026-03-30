@@ -136,6 +136,10 @@
 .dark .hover\:bg-gray-50:hover { background-color: #334155; }
 .dark .hover\:bg-gray-100:hover { background-color: #475569; }
 
+/* accent-50 다크모드 처리 */
+.dark .bg-accent-50 { background-color: #431407; }
+.dark .hover\:bg-accent-100:hover { background-color: #7c2d12; }
+
 /* 스크롤바 숨기기 */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */

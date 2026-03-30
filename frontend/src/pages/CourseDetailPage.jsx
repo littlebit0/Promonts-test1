@@ -332,13 +332,13 @@ function CourseDetailPage({ user }) {
                       setSelectedAssignmentDetail(assignment);
                       setShowAssignmentDetailModal(true);
                     }}
-                    className="border-l-4 border-accent-500 bg-accent-50 rounded-r-lg p-4 hover:bg-accent-100 transition-all cursor-pointer"
+                    className="border-l-4 border-accent-500 bg-accent-50 dark:bg-gray-700 rounded-r-lg p-4 hover:bg-accent-100 dark:hover:bg-gray-600 transition-all cursor-pointer"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h4 className="font-bold text-gray-900">{assignment.title}</h4>
-                        <p className="text-sm text-gray-600 mt-2">{assignment.description}</p>
-                        <p className="text-sm text-accent-700 font-bold mt-3 flex items-center gap-1">
+                        <h4 className="font-bold text-gray-900 dark:text-white">{assignment.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{assignment.description}</p>
+                        <p className="text-sm text-accent-700 dark:text-accent-400 font-bold mt-3 flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           마감: {new Date(assignment.dueDate).toLocaleDateString('ko-KR')}
                         </p>
