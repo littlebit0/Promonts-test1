@@ -40,7 +40,7 @@ function ChatPage({ user }) {
     try {
       const res = await courseAPI.getAll();
       setCourses(res.data);
-      if (res.data.length > 0) setSelectedCourse(res.data[0]);
+      // 자동 선택 없음 — 사용자가 직접 선택
     } catch (e) { console.error(e); }
   };
 
