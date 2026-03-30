@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, CheckSquare, Award, Calendar,
   UserCircle, Search, Shield, LogOut, Menu, X, Bell, BarChart2,
-  MessageSquare, FileText, ClipboardList, QrCode
+  MessageSquare, FileText, ClipboardList, QrCode, User, Lock, Save, ChevronRight
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { profileAPI } from '../services/api';
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: '대시보드' },
@@ -19,22 +20,33 @@ const NAV_ITEMS = [
   { to: '/chat', icon: MessageSquare, label: '채팅' },
   { to: '/notifications', icon: Bell, label: '알림' },
   { to: '/stats', icon: BarChart2, label: '통계' },
-  { to: '/search', icon: Search, label: '검색' },
-  { to: '/profile', icon: UserCircle, label: '프로필' },
 ];
 
-// 상단 Nav에 표시할 주요 항목 (PC)
-const MAIN_NAV = ['/', '/todos', '/academic', '/calendar', '/search', '/profile'];
+// 상단 Nav에 표시할 주요 항목 (PC) — 검색/프로필은 아이콘으로 별도 처리
+const MAIN_NAV = ['/', '/todos', '/academic', '/chat', '/calendar'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [profileEditing, setProfileEditing] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [profileLoading, setProfileLoading] = useState(false);
+
   const isAdmin = user.role === 'ADMIN';
   const location = useLocation();
+  const navigate = useNavigate();
   const intervalRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const profileRef = useRef(null);
 
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
+  // 알림 카운트
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -46,9 +58,7 @@ function Navbar({ user, onLogout }) {
         const count = await res.json();
         setUnreadCount(typeof count === 'number' ? count : count?.count || 0);
       }
-    } catch (e) {
-      // silent
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -57,15 +67,88 @@ function Navbar({ user, onLogout }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  // Reset count when visiting notifications page
   useEffect(() => {
-    if (location.pathname === '/notifications') {
-      setUnreadCount(0);
-    }
+    if (location.pathname === '/notifications') setUnreadCount(0);
   }, [location.pathname]);
+
+  // 검색창 열릴 때 포커스
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50);
+    else setSearchQuery('');
+  }, [searchOpen]);
+
+  // 프로필 모달 외부 클릭 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+        setProfileEditing(false);
+      }
+    };
+    if (profileOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [profileOpen]);
+
+  // 프로필 데이터 로드
+  const loadProfile = async () => {
+    if (profileData) return;
+    setProfileLoading(true);
+    try {
+      const res = await profileAPI.get();
+      setProfileData(res.data);
+      setFormData({ name: res.data.name, email: res.data.email });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleProfileOpen = () => {
+    setProfileOpen(!profileOpen);
+    setProfileEditing(false);
+    if (!profileOpen) loadProfile();
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    try {
+      await profileAPI.update(formData);
+      setProfileData({ ...profileData, ...formData });
+      setProfileEditing(false);
+      alert('프로필이 업데이트되었습니다.');
+    } catch (error) {
+      alert('업데이트 실패: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+    try {
+      await profileAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
+      alert('비밀번호가 변경되었습니다.');
+      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      alert('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+    }
+  };
 
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  const roleLabel = user.role === 'ADMIN' ? '관리자' : user.role === 'PROFESSOR' ? '교수' : '학생';
 
   return (
     <>
@@ -75,25 +158,15 @@ function Navbar({ user, onLogout }) {
 
             {/* Logo */}
             <Link to="/" className="text-xl font-bold text-primary-600 flex items-center gap-2 shrink-0">
-              <div className="bg-primary-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold">
-                P
-              </div>
+              <div className="bg-primary-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold">P</div>
               <span className="hidden sm:block">Promonts</span>
             </Link>
 
             {/* PC 네비게이션 */}
             <nav className="hidden lg:flex gap-1">
               {isAdmin ? (
-                <Link
-                  to="/admin"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all text-sm ${
-                    isActive('/admin')
-                      ? 'text-red-600 bg-red-50 dark:bg-red-900/30'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
-                  }`}
-                >
-                  <Shield className="w-4 h-4" />
-                  관리자
+                <Link to="/admin" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all text-sm ${isActive('/admin') ? 'text-red-600 bg-red-50 dark:bg-red-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'}`}>
+                  <Shield className="w-4 h-4" />관리자
                 </Link>
               ) : (
                 MAIN_NAV.map((path) => {
@@ -101,151 +174,241 @@ function Navbar({ user, onLogout }) {
                   if (!item) return null;
                   const { icon: Icon, label } = item;
                   return (
-                    <Link
-                      key={path}
-                      to={path}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium transition-all text-sm ${
-                        isActive(path)
-                          ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30 dark:text-primary-400'
-                          : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {label}
+                    <Link key={path} to={path} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium transition-all text-sm ${isActive(path) ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700'}`}>
+                      <Icon className="w-4 h-4" />{label}
                     </Link>
                   );
                 })
               )}
             </nav>
 
-            {/* 우측: 테마 토글 + 유저 + 로그아웃 + 햄버거 */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            {/* 우측 영역 */}
+            <div className="flex items-center gap-1 sm:gap-2">
               <ThemeToggle />
 
-              {/* 유저 정보 (SM 이상) */}
-              <div className="hidden sm:block text-right">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">{user.name}</div>
-                <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-                  {user.role === 'ADMIN' ? '관리자' : user.role === 'PROFESSOR' ? '교수' : '학생'}
-                </div>
+              {/* 검색 토글 버튼 */}
+              {!isAdmin && (
+                <button
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  className={`p-2 rounded-lg transition-all ${searchOpen ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  title="검색"
+                >
+                  {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+                </button>
+              )}
+
+              {/* 프로필 버튼 (이름 클릭) */}
+              <div className="relative hidden sm:block" ref={profileRef}>
+                <button
+                  onClick={handleProfileOpen}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${profileOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                >
+                  <div className="w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {user.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="text-left hidden md:block">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">{user.name}</div>
+                    <div className={`text-xs leading-tight ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>{roleLabel}</div>
+                  </div>
+                </button>
+
+                {/* 프로필 드롭다운 모달 */}
+                {profileOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                    {/* 헤더 */}
+                    <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-4 text-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                          {user.name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg leading-tight">{profileData?.name || user.name}</p>
+                          <p className="text-primary-100 text-sm">{profileData?.email || user.email}</p>
+                          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full mt-1 inline-block">{roleLabel}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {!profileEditing ? (
+                      <div className="p-4 space-y-2">
+                        <button
+                          onClick={() => setProfileEditing('info')}
+                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
+                        >
+                          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                            <User className="w-5 h-5 text-primary-600" />
+                            <span className="font-medium">프로필 수정</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                        </button>
+                        <button
+                          onClick={() => setProfileEditing('password')}
+                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
+                        >
+                          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                            <Lock className="w-5 h-5 text-primary-600" />
+                            <span className="font-medium">비밀번호 변경</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                        </button>
+                        <hr className="border-gray-200 dark:border-gray-700 my-1" />
+                        <button
+                          onClick={() => { setProfileOpen(false); onLogout(); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          <span className="font-medium">로그아웃</span>
+                        </button>
+                      </div>
+                    ) : profileEditing === 'info' ? (
+                      <form onSubmit={handleUpdateProfile} className="p-4 space-y-3">
+                        <div className="flex items-center gap-2 mb-3">
+                          <button type="button" onClick={() => setProfileEditing(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <X className="w-4 h-4" />
+                          </button>
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100">프로필 수정</h3>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">이름</label>
+                          <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">이메일</label>
+                          <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+                        </div>
+                        <button type="submit" className="w-full py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition flex items-center justify-center gap-2">
+                          <Save className="w-4 h-4" />저장
+                        </button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleChangePassword} className="p-4 space-y-3">
+                        <div className="flex items-center gap-2 mb-3">
+                          <button type="button" onClick={() => setProfileEditing(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <X className="w-4 h-4" />
+                          </button>
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100">비밀번호 변경</h3>
+                        </div>
+                        {['oldPassword', 'newPassword', 'confirmPassword'].map((field, i) => (
+                          <div key={field}>
+                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                              {['현재 비밀번호', '새 비밀번호', '새 비밀번호 확인'][i]}
+                            </label>
+                            <input type="password" value={passwordData[field]}
+                              onChange={e => setPasswordData({ ...passwordData, [field]: e.target.value })}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+                          </div>
+                        ))}
+                        <button type="submit" className="w-full py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition flex items-center justify-center gap-2">
+                          <Lock className="w-4 h-4" />변경
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* 로그아웃 버튼 (PC) */}
+              {/* 로그아웃 (SM 이하) */}
               <button
                 onClick={onLogout}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-all"
+                className="sm:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
               >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden md:block">로그아웃</span>
+                <LogOut className="w-5 h-5" />
               </button>
 
-              {/* 햄버거 버튼 (모바일/태블릿) */}
+              {/* 햄버거 (모바일) */}
               <button
                 onClick={() => setMenuOpen(true)}
                 className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
-                aria-label="메뉴 열기"
               >
                 <Menu className="w-6 h-6" />
               </button>
             </div>
           </div>
         </div>
+
+        {/* 인라인 검색 박스 */}
+        {searchOpen && !isAdmin && (
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 sm:px-6 lg:px-8 py-3">
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="공지사항, 과제, 강의 검색..."
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-700 dark:text-white text-sm"
+                />
+              </div>
+              <button type="submit" disabled={!searchQuery.trim()}
+                className="px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition disabled:opacity-40">
+                검색
+              </button>
+              <button type="button" onClick={() => setSearchOpen(false)}
+                className="px-3 py-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition text-sm">
+                닫기
+              </button>
+            </form>
+          </div>
+        )}
       </header>
 
       {/* 모바일 드로어 오버레이 */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 lg:hidden"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
+      {menuOpen && <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setMenuOpen(false)} />}
 
       {/* 모바일 드로어 */}
-      <div
-        className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          menuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {/* 드로어 헤더 */}
+      <div className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
           <div>
             <div className="font-bold text-gray-900 dark:text-white">{user.name}</div>
-            <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-              {user.role === 'ADMIN' ? '관리자' : user.role === 'PROFESSOR' ? '교수' : '학생'}
-            </div>
+            <div className={`text-xs ${isAdmin ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>{roleLabel}</div>
           </div>
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
-          >
+          <button onClick={() => setMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 드로어 메뉴 */}
-        <nav className="p-3 overflow-y-auto flex-1" style={{ maxHeight: 'calc(100vh - 140px)' }}>
+        <nav className="p-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 140px)' }}>
           {isAdmin ? (
-            <Link
-              to="/admin"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 bg-red-50 dark:bg-red-900/30 font-bold"
-            >
-              <Shield className="w-5 h-5" />
-              관리자 패널
+            <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 bg-red-50 dark:bg-red-900/30 font-bold">
+              <Shield className="w-5 h-5" />관리자 패널
             </Link>
           ) : (
             <div className="space-y-1">
-              {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                    isActive(to)
-                      ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  {label}
+              {[...NAV_ITEMS, { to: '/search', icon: Search, label: '검색' }, { to: '/profile', icon: UserCircle, label: '프로필' }].map(({ to, icon: Icon, label }) => (
+                <Link key={to} to={to} onClick={() => setMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive(to) ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
+                  <Icon className="w-5 h-5" />{label}
                 </Link>
               ))}
             </div>
           )}
         </nav>
 
-        {/* 드로어 푸터 */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <button
-            onClick={() => { setMenuOpen(false); onLogout(); }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 dark:bg-gray-700 text-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-600 transition-all font-bold"
-          >
-            <LogOut className="w-5 h-5" />
-            로그아웃
+          <button onClick={() => { setMenuOpen(false); onLogout(); }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 dark:bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition font-bold">
+            <LogOut className="w-5 h-5" />로그아웃
           </button>
         </div>
       </div>
 
-      {/* 모바일 하단 탭 바 (핵심 5개) */}
+      {/* 모바일 하단 탭 바 */}
       {!isAdmin && (
         <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 lg:hidden z-30 safe-area-pb">
           <div className="flex justify-around items-center h-16 px-2">
             {[
               { to: '/', icon: LayoutDashboard, label: '홈' },
               { to: '/courses', icon: BookOpen, label: '강의' },
-              { to: '/todos', icon: CheckSquare, label: 'Todo' },
+              { to: '/chat', icon: MessageSquare, label: '채팅' },
               { to: '/notifications', icon: Bell, label: '알림', badge: unreadCount },
-              { to: '/profile', icon: UserCircle, label: '프로필' },
+              { to: '/todos', icon: CheckSquare, label: 'Todo' },
             ].map(({ to, icon: Icon, label, badge }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
-                  isActive(to)
-                    ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}
-              >
+              <Link key={to} to={to}
+                className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${isActive(to) ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}>
                 <div className="relative">
                   <Icon className={`w-5 h-5 ${isActive(to) ? 'scale-110' : ''} transition-transform`} />
                   {badge > 0 && (
