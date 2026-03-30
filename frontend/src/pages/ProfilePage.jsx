@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Save } from 'lucide-react';
 import { profileAPI } from '../services/api';
 
@@ -29,50 +29,50 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       await profileAPI.update(formData);
-      alert('프로필이 업데이트되었습니다');
+      alert('í”„ë¡œí•„ì´ ì—…ë°ì´íŠ¸ë˜ì—ˆìŠµë‹ˆë‹¤');
       fetchProfile();
       setEditing(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('업데이트 실패: ' + (error.response?.data?.error || error.message));
+      alert('ì—…ë°ì´íŠ¸ ì‹¤íŒ¨: ' + (error.response?.data?.error || error.message));
     }
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('새 비밀번호가 일치하지 않습니다');
+      alert('ìƒˆ ë¹„ë°€ë²ˆí˜¸ê°€ ì¼ì¹˜í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤');
       return;
     }
     try {
       await profileAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
-      alert('비밀번호가 변경되었습니다');
+      alert('ë¹„ë°€ë²ˆí˜¸ê°€ ë³€ê²½ë˜ì—ˆìŠµë‹ˆë‹¤');
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       console.error('Failed to change password:', error);
-      alert('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
+      alert('ë¹„ë°€ë²ˆí˜¸ ë³€ê²½ ì‹¤íŒ¨: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  if (loading) return <div className="text-center py-12">로딩 중...</div>;
+  if (loading) return <div className="text-center py-12">ë¡œë”© ì¤‘...</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
         <User className="w-8 h-8 text-blue-600" />
-        프로필
+        í”„ë¡œí•„
       </h1>
 
-      {/* 프로필 정보 */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
+      {/* í”„ë¡œí•„ ì •ë³´ */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">기본 정보</h2>
+          <h2 className="text-xl font-bold">ê¸°ë³¸ ì •ë³´</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              수정
+              ìˆ˜ì •
             </button>
           )}
         </div>
@@ -80,22 +80,22 @@ export default function ProfilePage() {
         {editing ? (
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
-              <label className="block font-medium mb-1">이름</label>
+              <label className="block font-medium mb-1 dark:text-gray-300">ì´ë¦„</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border rounded"
+                className="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium mb-1">이메일</label>
+              <label className="block font-medium mb-1 dark:text-gray-300">ì´ë©”ì¼</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border rounded"
+                className="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 required
               />
             </div>
@@ -105,7 +105,7 @@ export default function ProfilePage() {
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
               >
                 <Save className="w-5 h-5" />
-                저장
+                ì €ìž¥
               </button>
               <button
                 type="button"
@@ -113,61 +113,61 @@ export default function ProfilePage() {
                   setEditing(false);
                   setFormData({ name: profile.name, email: profile.email });
                 }}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 dark:text-gray-300"
               >
-                취소
+                ì·¨ì†Œ
               </button>
             </div>
           </form>
         ) : (
           <div className="space-y-3">
             <div>
-              <span className="text-gray-500">이름:</span> <span className="font-medium">{profile.name}</span>
+              <span className="text-gray-500">ì´ë¦„:</span> <span className="font-medium dark:text-white">{profile.name}</span>
             </div>
             <div>
-              <span className="text-gray-500">이메일:</span> <span className="font-medium">{profile.email}</span>
+              <span className="text-gray-500">ì´ë©”ì¼:</span> <span className="font-medium dark:text-white">{profile.email}</span>
             </div>
             <div>
-              <span className="text-gray-500">역할:</span> <span className="font-medium">{profile.role}</span>
+              <span className="text-gray-500">ì—­í• :</span> <span className="font-medium dark:text-white">{profile.role}</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* 비밀번호 변경 */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+      {/* ë¹„ë°€ë²ˆí˜¸ ë³€ê²½ */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
           <Lock className="w-6 h-6" />
-          비밀번호 변경
+          ë¹„ë°€ë²ˆí˜¸ ë³€ê²½
         </h2>
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">현재 비밀번호</label>
+            <label className="block font-medium mb-1 dark:text-gray-300">í˜„ìž¬ ë¹„ë°€ë²ˆí˜¸</label>
             <input
               type="password"
               value={passwordData.oldPassword}
               onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
+              className="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
               required
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">새 비밀번호</label>
+            <label className="block font-medium mb-1 dark:text-gray-300">ìƒˆ ë¹„ë°€ë²ˆí˜¸</label>
             <input
               type="password"
               value={passwordData.newPassword}
               onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
+              className="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
               required
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">새 비밀번호 확인</label>
+            <label className="block font-medium mb-1 dark:text-gray-300">ìƒˆ ë¹„ë°€ë²ˆí˜¸ í™•ì¸</label>
             <input
               type="password"
               value={passwordData.confirmPassword}
               onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
+              className="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
               required
             />
           </div>
@@ -176,10 +176,11 @@ export default function ProfilePage() {
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
           >
             <Lock className="w-5 h-5" />
-            비밀번호 변경
+            ë¹„ë°€ë²ˆí˜¸ ë³€ê²½
           </button>
         </form>
       </div>
     </div>
   );
 }
+
