@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { courseAPI, weekAPI, materialAPI, assignmentAPI } from '../services/api';
-import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File } from 'lucide-react';
+import { courseAPI, weekAPI, materialAPI, assignmentAPI, submissionAPI } from '../services/api';
+import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File, CheckCircle, AlertCircle } from 'lucide-react';
 
 function formatFileSize(bytes) {
   if (!bytes) return '';
@@ -42,6 +42,12 @@ function CourseDetailPage({ user }) {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showAssignmentDetailModal, setShowAssignmentDetailModal] = useState(false);
   const [selectedAssignmentDetail, setSelectedAssignmentDetail] = useState(null);
+
+  // 과제 제출 상태
+  const [mySubmission, setMySubmission] = useState(null); // 현재 선택된 과제의 내 제출
+  const [submitContent, setSubmitContent] = useState('');
+  const [submitFile, setSubmitFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [materialForm, setMaterialForm] = useState({ title: '', description: '' });
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', dueDate: '' });
@@ -64,8 +70,7 @@ function CourseDetailPage({ user }) {
     const { openAssignmentId, assignmentData } = location.state || {};
     if (openAssignmentId && assignmentData && !loading) {
       const timer = setTimeout(() => {
-        setSelectedAssignmentDetail(assignmentData);
-        setShowAssignmentDetailModal(true);
+        openAssignmentDetail(assignmentData);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -151,8 +156,51 @@ function CourseDetailPage({ user }) {
     }
   };
 
-  const handleAssignmentDelete = async (assignmentId) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+  const openAssignmentDetail = async (assignment) => {
+    setSelectedAssignmentDetail(assignment);
+    setShowAssignmentDetailModal(true);
+    setSubmitContent('');
+    setSubmitFile(null);
+    setMySubmission(null);
+    if (!isProfessor) {
+      try {
+        const res = await submissionAPI.getMy(assignment.id);
+        if (res.data) setMySubmission(res.data);
+      } catch (e) { /* 제출 없음 */ }
+    }
+  };
+
+  const handleSubmitAssignment = async (e) => {
+    e.preventDefault();
+    if (!submitContent && !submitFile) { alert('내용 또는 파일을 입력해주세요.'); return; }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      if (submitContent) formData.append('content', submitContent);
+      if (submitFile) formData.append('file', submitFile);
+      const res = await submissionAPI.submit(selectedAssignmentDetail.id, formData);
+      setMySubmission(res.data);
+      setSubmitContent('');
+      setSubmitFile(null);
+      alert('제출 완료!');
+    } catch (e) {
+      alert('제출 실패: ' + (e.response?.data?.error || e.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancelSubmission = async () => {
+    if (!confirm('제출을 취소하시겠습니까?')) return;
+    try {
+      await submissionAPI.delete(mySubmission.id);
+      setMySubmission(null);
+    } catch (e) {
+      alert('제출 취소 실패');
+    }
+  };
+
+  const handleAssignmentDelete = async (assignmentId) => {    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await assignmentAPI.delete(assignmentId);
       alert('삭제되었습니다.');
@@ -341,10 +389,7 @@ function CourseDetailPage({ user }) {
                 {weekDetail.assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    onClick={() => {
-                      setSelectedAssignmentDetail(assignment);
-                      setShowAssignmentDetailModal(true);
-                    }}
+                    onClick={() => openAssignmentDetail(assignment)}
                     className="border-l-4 border-accent-500 bg-accent-50 dark:bg-gray-700 rounded-r-lg p-4 hover:bg-accent-100 dark:hover:bg-gray-600 transition-all cursor-pointer"
                   >
                     <div className="flex justify-between items-start">
@@ -594,6 +639,78 @@ function CourseDetailPage({ user }) {
                   <p className="text-gray-700 whitespace-pre-wrap">{selectedAssignmentDetail.description}</p>
                 </div>
               </div>
+
+              {/* 학생: 제출 영역 */}
+              {!isProfessor && (
+                <div>
+                  {mySubmission ? (
+                    /* 제출 완료 상태 */
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-700 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="font-bold text-green-700 dark:text-green-400">제출 완료</span>
+                        {mySubmission.isLate && (
+                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">⚠️ 지각</span>
+                        )}
+                      </div>
+                      {mySubmission.content && (
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{mySubmission.content}</p>
+                      )}
+                      {mySubmission.fileName && (
+                        <p className="text-sm text-blue-600 flex items-center gap-1 mt-1">
+                          <Download className="w-3 h-3" />{mySubmission.fileName}
+                        </p>
+                      )}
+                      {mySubmission.score !== null && mySubmission.score !== undefined && (
+                        <p className="text-sm font-bold text-green-700 mt-2">점수: {mySubmission.score}점</p>
+                      )}
+                      {mySubmission.feedback && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">피드백: {mySubmission.feedback}</p>
+                      )}
+                      <button
+                        onClick={handleCancelSubmission}
+                        className="mt-3 px-4 py-2 text-sm bg-red-50 dark:bg-red-900/30 text-red-600 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 transition font-medium"
+                      >
+                        제출 취소
+                      </button>
+                    </div>
+                  ) : (
+                    /* 제출 폼 */
+                    <form onSubmit={handleSubmitAssignment} className="space-y-3">
+                      <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Upload className="w-4 h-4 text-accent-600" />
+                        과제 제출
+                        {new Date(selectedAssignmentDetail.dueDate) < new Date() && (
+                          <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-normal">마감됨 — 지각 제출</span>
+                        )}
+                      </h3>
+                      <textarea
+                        value={submitContent}
+                        onChange={e => setSubmitContent(e.target.value)}
+                        rows="4"
+                        placeholder="과제 내용을 입력하세요..."
+                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:border-accent-500 focus:outline-none text-sm resize-none"
+                      />
+                      <div>
+                        <input
+                          type="file"
+                          onChange={e => setSubmitFile(e.target.files[0])}
+                          className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-accent-50 file:text-accent-700 hover:file:bg-accent-100"
+                        />
+                        {submitFile && <p className="text-xs text-gray-500 mt-1">{submitFile.name}</p>}
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={submitting || (!submitContent.trim() && !submitFile)}
+                        className="w-full py-3 bg-accent-600 text-white rounded-xl hover:bg-accent-700 font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {submitting ? '제출 중...' : new Date(selectedAssignmentDetail.dueDate) < new Date() ? '지각 제출하기' : '제출하기'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-3 pt-4">
