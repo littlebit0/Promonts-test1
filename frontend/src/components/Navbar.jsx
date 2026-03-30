@@ -23,7 +23,7 @@ const NAV_ITEMS = [
 ];
 
 // 상단 Nav에 표시할 주요 항목 (PC) — 검색/프로필은 아이콘으로 별도 처리
-const MAIN_NAV = ['/', '/todos', '/academic', '/chat', '/calendar'];
+const MAIN_NAV = ['/', '/todos', '/assignments', '/academic', '/chat', '/calendar'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -402,7 +402,7 @@ function Navbar({ user, onLogout }) {
           <div className="flex justify-around items-center h-16 px-2">
             {[
               { to: '/', icon: LayoutDashboard, label: '홈' },
-              { to: '/courses', icon: BookOpen, label: '강의' },
+              { to: '/assignments', icon: FileText, label: '과제' },
               { to: '/chat', icon: MessageSquare, label: '채팅' },
               { to: '/notifications', icon: Bell, label: '알림', badge: unreadCount },
               { to: '/todos', icon: CheckSquare, label: 'Todo' },
