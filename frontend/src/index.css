@@ -93,10 +93,48 @@
   animation: slide-in 0.3s ease-out;
 }
 
-/* 다크모드 CSS 변수 (Tailwind dark: 클래스와 함께 사용) */
+/* 다크모드 전역 스타일 */
 .dark {
   color-scheme: dark;
 }
+
+/* bg-white에 dark: 클래스 없는 경우 자동 처리 */
+.dark .bg-white {
+  background-color: #1e293b;
+  color: #f1f5f9;
+}
+.dark .bg-gray-50 {
+  background-color: #0f172a;
+}
+.dark .bg-gray-100 {
+  background-color: #334155;
+}
+
+/* 텍스트 */
+.dark .text-gray-900 { color: #f1f5f9; }
+.dark .text-gray-800 { color: #e2e8f0; }
+.dark .text-gray-700 { color: #cbd5e1; }
+.dark .text-gray-600 { color: #94a3b8; }
+.dark .text-gray-500 { color: #64748b; }
+
+/* 보더 */
+.dark .border-gray-200 { border-color: #475569; }
+.dark .border-gray-300 { border-color: #334155; }
+.dark .divide-gray-100 > * { border-color: #334155; }
+.dark .divide-gray-200 > * { border-color: #475569; }
+
+/* 입력창 */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
+.dark textarea,
+.dark select {
+  background-color: #334155;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+/* 호버 */
+.dark .hover\:bg-gray-50:hover { background-color: #334155; }
+.dark .hover\:bg-gray-100:hover { background-color: #475569; }
 
 /* 스크롤바 숨기기 */
 .scrollbar-hide {

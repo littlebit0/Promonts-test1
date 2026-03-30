@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI } from '../services/api';
 import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File } from 'lucide-react';
@@ -85,7 +85,7 @@ function CourseDetailPage({ user }) {
   const handleMaterialUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) {
-      alert('íŒŒì¼ì„ ì„ íƒí•˜ì„¸ìš”.');
+      alert('파일을 선택하세요.');
       return;
     }
 
@@ -98,26 +98,26 @@ function CourseDetailPage({ user }) {
 
     try {
       await materialAPI.upload(courseId, selectedWeek, formData);
-      alert('ê°•ì˜ ìžë£Œê°€ ì—…ë¡œë“œë˜ì—ˆìŠµë‹ˆë‹¤.');
+      alert('강의 자료가 업로드되었습니다.');
       setShowMaterialModal(false);
       setMaterialForm({ title: '', description: '' });
       setUploadFile(null);
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to upload material:', error);
-      alert('ì—…ë¡œë“œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+      alert('업로드에 실패했습니다.');
     }
   };
 
   const handleMaterialDelete = async (materialId) => {
-    if (!window.confirm('ì •ë§ ì‚­ì œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?')) return;
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await materialAPI.delete(courseId, materialId);
-      alert('ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤.');
+      alert('삭제되었습니다.');
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to delete material:', error);
-      alert('ì‚­ì œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+      alert('삭제에 실패했습니다.');
     }
   };
 
@@ -128,34 +128,34 @@ function CourseDetailPage({ user }) {
         ...assignmentForm,
         weekId: weekDetail.week.id,
       });
-      alert('ê³¼ì œê°€ ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.');
+      alert('과제가 등록되었습니다.');
       setShowAssignmentModal(false);
       setAssignmentForm({ title: '', description: '', dueDate: '' });
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to create assignment:', error);
-      alert('ê³¼ì œ ë“±ë¡ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+      alert('과제 등록에 실패했습니다.');
     }
   };
 
   const handleAssignmentDelete = async (assignmentId) => {
-    if (!window.confirm('ì •ë§ ì‚­ì œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?')) return;
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await assignmentAPI.delete(assignmentId);
-      alert('ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤.');
+      alert('삭제되었습니다.');
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to delete assignment:', error);
-      alert('ì‚­ì œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+      alert('삭제에 실패했습니다.');
     }
   };
 
   if (loading) {
-    return <div className="text-center py-8">ë¡œë”© ì¤‘...</div>;
+    return <div className="text-center py-8">로딩 중...</div>;
   }
 
   if (!course) {
-    return <div className="text-center py-8 text-red-600">ê°•ì˜ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.</div>;
+    return <div className="text-center py-8 text-red-600">강의를 찾을 수 없습니다.</div>;
   }
 
   return (
@@ -167,7 +167,7 @@ function CourseDetailPage({ user }) {
           className="flex items-center gap-2 text-primary-100 hover:text-white mb-4 transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
-          ëŒ€ì‹œë³´ë“œë¡œ ëŒì•„ê°€ê¸°
+          대시보드로 돌아가기
         </button>
         <div className="flex justify-between items-start">
           <div>
@@ -175,7 +175,7 @@ function CourseDetailPage({ user }) {
               <BookOpen className="w-8 h-8" />
               {course.name}
             </h1>
-            <p className="text-primary-100">{course.code} Â· {course.professorName}</p>
+            <p className="text-primary-100">{course.code} · {course.professorName}</p>
             <p className="text-primary-200 text-sm mt-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               {course.semester} ({course.year})
@@ -185,8 +185,8 @@ function CourseDetailPage({ user }) {
       </div>
 
       {/* Week Selector */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">ì£¼ì°¨ ì„ íƒ</h2>
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">주차 선택</h2>
         <div className="grid grid-cols-5 md:grid-cols-10 lg:grid-cols-15 gap-2">
           {weeks.map((week) => (
             <button
@@ -195,10 +195,10 @@ function CourseDetailPage({ user }) {
               className={`p-3 rounded-lg font-bold transition-all ${
                 selectedWeek === week.weekNumber
                   ? 'bg-primary-600 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {week.weekNumber}ì£¼
+              {week.weekNumber}주
             </button>
           ))}
         </div>
@@ -207,12 +207,12 @@ function CourseDetailPage({ user }) {
       {/* Week Content */}
       {weekDetail && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* ê°•ì˜ ìžë£Œ */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+          {/* 강의 자료 */}
+          <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary-600" />
-                {weekDetail.week.weekNumber}ì£¼ì°¨ ê°•ì˜ ìžë£Œ
+                {weekDetail.week.weekNumber}주차 강의 자료
               </h3>
               {isProfessor && (
                 <button
@@ -220,16 +220,16 @@ function CourseDetailPage({ user }) {
                   className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  ìžë£Œ ì¶”ê°€
+                  자료 추가
                 </button>
               )}
             </div>
 
             {weekDetail.materials.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+              <div className="text-center py-12 text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>ë“±ë¡ëœ ê°•ì˜ ìžë£Œê°€ ì—†ìŠµë‹ˆë‹¤.</p>
-                {isProfessor && <p className="text-sm mt-2">ìžë£Œ ì¶”ê°€ ë²„íŠ¼ì„ ëˆŒëŸ¬ ì—…ë¡œë“œí•˜ì„¸ìš”.</p>}
+                <p>등록된 강의 자료가 없습니다.</p>
+                {isProfessor && <p className="text-sm mt-2">자료 추가 버튼을 눌러 업로드하세요.</p>}
               </div>
             ) : (
               <div className="space-y-3">
@@ -270,7 +270,7 @@ function CourseDetailPage({ user }) {
                                 title: material.title,
                               })}
                               className="text-green-600 hover:text-green-700 p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition"
-                              title="ë¯¸ë¦¬ë³´ê¸°"
+                              title="미리보기"
                             >
                               <Image className="w-4 h-4" />
                             </button>
@@ -299,12 +299,12 @@ function CourseDetailPage({ user }) {
             )}
           </div>
 
-          {/* ê³¼ì œ */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+          {/* 과제 */}
+          <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-accent-600" />
-                {weekDetail.week.weekNumber}ì£¼ì°¨ ê³¼ì œ
+                {weekDetail.week.weekNumber}주차 과제
               </h3>
               {isProfessor && (
                 <button
@@ -312,16 +312,16 @@ function CourseDetailPage({ user }) {
                   className="flex items-center gap-2 px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-all text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  ê³¼ì œ ë“±ë¡
+                  과제 등록
                 </button>
               )}
             </div>
 
             {weekDetail.assignments.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+              <div className="text-center py-12 text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>ë“±ë¡ëœ ê³¼ì œê°€ ì—†ìŠµë‹ˆë‹¤.</p>
-                {isProfessor && <p className="text-sm mt-2">ê³¼ì œ ë“±ë¡ ë²„íŠ¼ì„ ëˆŒëŸ¬ ì¶”ê°€í•˜ì„¸ìš”.</p>}
+                <p>등록된 과제가 없습니다.</p>
+                {isProfessor && <p className="text-sm mt-2">과제 등록 버튼을 눌러 추가하세요.</p>}
               </div>
             ) : (
               <div className="space-y-3">
@@ -336,11 +336,11 @@ function CourseDetailPage({ user }) {
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h4 className="font-bold text-gray-900 dark:text-white">{assignment.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{assignment.description}</p>
+                        <h4 className="font-bold text-gray-900">{assignment.title}</h4>
+                        <p className="text-sm text-gray-600 mt-2">{assignment.description}</p>
                         <p className="text-sm text-accent-700 font-bold mt-3 flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          ë§ˆê°: {new Date(assignment.dueDate).toLocaleDateString('ko-KR')}
+                          마감: {new Date(assignment.dueDate).toLocaleDateString('ko-KR')}
                         </p>
                       </div>
                       {isProfessor && (
@@ -363,37 +363,37 @@ function CourseDetailPage({ user }) {
       {/* Material Upload Modal */}
       {showMaterialModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-2xl font-bold text-gray-900">ê°•ì˜ ìžë£Œ ì—…ë¡œë“œ</h2>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">강의 자료 업로드</h2>
             </div>
             <form onSubmit={handleMaterialUpload} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ì œëª© *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">제목 *</label>
                 <input
                   type="text"
                   required
                   value={materialForm.title}
                   onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="ê°•ì˜ ìžë£Œ ì œëª©"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                  placeholder="강의 자료 제목"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ì„¤ëª…</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
                 <textarea
                   value={materialForm.description}
                   onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                   rows="3"
-                  placeholder="ìžë£Œ ì„¤ëª… (ì„ íƒ)"
+                  placeholder="자료 설명 (선택)"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">íŒŒì¼ *</label>
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center dark:bg-gray-900">
+                <label className="block text-sm font-medium text-gray-700 mb-2">파일 *</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                   <input
                     type="file"
@@ -402,8 +402,8 @@ function CourseDetailPage({ user }) {
                     className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                   />
                   {uploadFile && (
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                      ì„ íƒëœ íŒŒì¼: {uploadFile.name} ({(uploadFile.size / 1024).toFixed(1)} KB)
+                    <p className="mt-2 text-sm text-gray-600">
+                      선택된 파일: {uploadFile.name} ({(uploadFile.size / 1024).toFixed(1)} KB)
                     </p>
                   )}
                 </div>
@@ -417,15 +417,15 @@ function CourseDetailPage({ user }) {
                     setMaterialForm({ title: '', description: '' });
                     setUploadFile(null);
                   }}
-                  className="flex-1 px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                 >
-                  ì·¨ì†Œ
+                  취소
                 </button>
                 <button
                   type="submit"
                   className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium"
                 >
-                  ì—…ë¡œë“œ
+                  업로드
                 </button>
               </div>
             </form>
@@ -436,43 +436,43 @@ function CourseDetailPage({ user }) {
       {/* Assignment Create Modal */}
       {showAssignmentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-2xl font-bold text-gray-900">ê³¼ì œ ë“±ë¡</h2>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">과제 등록</h2>
             </div>
             <form onSubmit={handleAssignmentCreate} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ì œëª© *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">제목 *</label>
                 <input
                   type="text"
                   required
                   value={assignmentForm.title}
                   onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="ê³¼ì œ ì œëª©"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                  placeholder="과제 제목"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ì„¤ëª… *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">설명 *</label>
                 <textarea
                   required
                   value={assignmentForm.description}
                   onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                   rows="5"
-                  placeholder="ê³¼ì œ ì„¤ëª…"
+                  placeholder="과제 설명"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ë§ˆê°ì¼ *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">마감일 *</label>
                 <input
                   type="datetime-local"
                   required
                   value={assignmentForm.dueDate}
                   onChange={(e) => setAssignmentForm({ ...assignmentForm, dueDate: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -483,15 +483,15 @@ function CourseDetailPage({ user }) {
                     setShowAssignmentModal(false);
                     setAssignmentForm({ title: '', description: '', dueDate: '' });
                   }}
-                  className="flex-1 px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                 >
-                  ì·¨ì†Œ
+                  취소
                 </button>
                 <button
                   type="submit"
                   className="flex-1 px-6 py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 font-medium"
                 >
-                  ë“±ë¡
+                  등록
                 </button>
               </div>
             </form>
@@ -534,18 +534,18 @@ function CourseDetailPage({ user }) {
       {/* Assignment Detail Modal */}
       {showAssignmentDetailModal && selectedAssignmentDetail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-start">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedAssignmentDetail.title}</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-gray-900">{selectedAssignmentDetail.title}</h2>
+                <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   {course?.name} ({course?.code})
                 </p>
               </div>
               <button
                 onClick={() => setShowAssignmentDetailModal(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -556,7 +556,7 @@ function CourseDetailPage({ user }) {
               <div className="bg-accent-50 border-l-4 border-accent-500 rounded-r-lg p-4">
                 <div className="flex items-center gap-2 text-accent-700 font-bold">
                   <Calendar className="w-5 h-5" />
-                  ë§ˆê°ì¼: {new Date(selectedAssignmentDetail.dueDate).toLocaleString('ko-KR', {
+                  마감일: {new Date(selectedAssignmentDetail.dueDate).toLocaleString('ko-KR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -565,20 +565,20 @@ function CourseDetailPage({ user }) {
                   })}
                 </div>
                 {new Date(selectedAssignmentDetail.dueDate) < new Date() && (
-                  <p className="text-sm text-red-600 font-medium mt-2">âš ï¸ ë§ˆê°ì¼ì´ ì§€ë‚¬ìŠµë‹ˆë‹¤!</p>
+                  <p className="text-sm text-red-600 font-medium mt-2">⚠️ 마감일이 지났습니다!</p>
                 )}
                 {new Date(selectedAssignmentDetail.dueDate) > new Date() && (
                   <p className="text-sm text-gray-600 mt-2">
-                    ë‚¨ì€ ì‹œê°„: {Math.ceil((new Date(selectedAssignmentDetail.dueDate) - new Date()) / (1000 * 60 * 60 * 24))}ì¼
+                    남은 시간: {Math.ceil((new Date(selectedAssignmentDetail.dueDate) - new Date()) / (1000 * 60 * 60 * 24))}일
                   </p>
                 )}
               </div>
 
               {/* Description */}
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">ê³¼ì œ ë‚´ìš©</h3>
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedAssignmentDetail.description}</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">과제 내용</h3>
+                <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedAssignmentDetail.description}</p>
                 </div>
               </div>
 
@@ -592,14 +592,14 @@ function CourseDetailPage({ user }) {
                     }}
                     className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all"
                   >
-                    ì‚­ì œ
+                    삭제
                   </button>
                 )}
                 <button
                   onClick={() => setShowAssignmentDetailModal(false)}
                   className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
                 >
-                  ë‹«ê¸°
+                  닫기
                 </button>
               </div>
             </div>
@@ -611,4 +611,3 @@ function CourseDetailPage({ user }) {
 }
 
 export default CourseDetailPage;
-

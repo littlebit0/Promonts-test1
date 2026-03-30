@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { courseAPI, todoAPI, dashboardAPI, assignmentAPI } from '../services/api';
 import { BookOpen, CheckCircle2, FileText, AlertCircle, Calendar, ChevronRight, Users, X } from 'lucide-react';
@@ -55,16 +55,16 @@ function Dashboard({ user }) {
       setShowAssignmentDetailModal(true);
     } catch (error) {
       console.error('Failed to load assignment:', error);
-      alert('ê³¼ì œ ì •ë³´ë¥¼ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.');
+      alert('과제 정보를 불러올 수 없습니다.');
     }
   };
 
   const handleTodoClick = (todo) => {
-    // ê³¼ì œ Todoë©´ ê³¼ì œ ìƒì„¸ë¡œ
+    // 과제 Todo면 과제 상세로
     if (todo.assignmentId) {
       handleAssignmentClick(todo.assignmentId);
     } else {
-      // ì¼ë°˜ Todoë©´ Todo ìƒì„¸ ëª¨ë‹¬
+      // 일반 Todo면 Todo 상세 모달
       setSelectedTodo(todo);
       setShowTodoDetailModal(true);
     }
@@ -73,7 +73,7 @@ function Dashboard({ user }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-xl text-gray-600">ë¡œë”© ì¤‘...</div>
+        <div className="text-xl text-gray-600">로딩 중...</div>
       </div>
     );
   }
@@ -82,18 +82,18 @@ function Dashboard({ user }) {
     <div className="space-y-8">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-8 text-white shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">ì•ˆë…•í•˜ì„¸ìš”, {user.name}ë‹˜! ðŸ‘‹</h1>
-        <p className="text-primary-100">ì˜¤ëŠ˜ë„ ì¢‹ì€ í•˜ë£¨ ë³´ë‚´ì„¸ìš”!</p>
+        <h1 className="text-3xl font-bold mb-2">안녕하세요, {user.name}님! 👋</h1>
+        <p className="text-primary-100">오늘도 좋은 하루 보내세요!</p>
       </div>
 
       {/* Stats Grid */}
       {dashboard?.userStats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* ì´ ê°•ì˜ */}
+          {/* 총 강의 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-primary-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">ì´ ê°•ì˜</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 강의</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.totalCourses}</p>
               </div>
               <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-lg">
@@ -102,11 +102,11 @@ function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* ì´ í•  ì¼ */}
+          {/* 총 할 일 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-gray-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">ì´ í•  ì¼</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">총 할 일</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.totalTodos}</p>
               </div>
               <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
@@ -115,11 +115,11 @@ function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* ì™„ë£Œí•œ í•  ì¼ */}
+          {/* 완료한 할 일 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">ì™„ë£Œí•œ í•  ì¼</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">완료한 할 일</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.completedTodos}</p>
               </div>
               <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
@@ -128,11 +128,11 @@ function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* ëŒ€ê¸° ì¤‘ì¸ ê³¼ì œ */}
+          {/* 대기 중인 과제 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-accent-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">ëŒ€ê¸° ì¤‘ì¸ ê³¼ì œ</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">대기 중인 과제</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{dashboard.userStats.pendingAssignments}</p>
               </div>
               <div className="bg-accent-100 dark:bg-accent-900 p-3 rounded-lg">
@@ -148,19 +148,19 @@ function Dashboard({ user }) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-primary-600" />
-            ë‚´ ê°•ì˜
+            내 강의
           </h2>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{courses.length}ê°œ</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{courses.length}개</span>
         </div>
 
         {courses.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">ë“±ë¡ëœ ê°•ì˜ê°€ ì—†ìŠµë‹ˆë‹¤.</p>
+          <p className="text-gray-400 text-center py-8">등록된 강의가 없습니다.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="border-2 border-gray-100 dark:border-gray-700 rounded-lg p-6 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg transition-all bg-white dark:bg-gray-800"
+                className="border-2 border-gray-100 dark:border-gray-700 rounded-lg p-6 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg transition-all bg-white dark:bg-gray-850"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -188,7 +188,7 @@ function Dashboard({ user }) {
                   onClick={() => handleCourseClick(course.id)}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all"
                 >
-                  ê°•ì˜ ìƒì„¸
+                  강의 상세
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -202,13 +202,13 @@ function Dashboard({ user }) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <CheckCircle2 className="w-6 h-6 text-green-600" />
-            í•  ì¼
+            할 일
           </h2>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{todos.filter(t => !t.completed).length}ê°œ ë‚¨ìŒ</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{todos.filter(t => !t.completed).length}개 남음</span>
         </div>
         <div className="space-y-3 max-h-[400px] overflow-y-auto">
           {todos.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">í•  ì¼ì´ ì—†ìŠµë‹ˆë‹¤.</p>
+            <p className="text-gray-400 text-center py-8">할 일이 없습니다.</p>
           ) : (
             todos.slice(0, 10).map((todo) => (
               <div
@@ -228,13 +228,13 @@ function Dashboard({ user }) {
                       e.stopPropagation();
                       handleToggleTodo(todo.id);
                     }}
-                    disabled={todo.title && todo.title.startsWith('[ê³¼ì œ]')}
+                    disabled={todo.title && todo.title.startsWith('[과제]')}
                     className={`mt-1 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 ${
-                      todo.title && todo.title.startsWith('[ê³¼ì œ]') 
+                      todo.title && todo.title.startsWith('[과제]') 
                         ? 'cursor-not-allowed opacity-50' 
                         : 'cursor-pointer'
                     }`}
-                    title={todo.title && todo.title.startsWith('[ê³¼ì œ]') ? 'ê³¼ì œëŠ” ì œì¶œ ì‹œìŠ¤í…œì„ í†µí•´ì„œë§Œ ì™„ë£Œí•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.' : ''}
+                    title={todo.title && todo.title.startsWith('[과제]') ? '과제는 제출 시스템을 통해서만 완료할 수 있습니다.' : ''}
                   />
                   <div className="flex-1">
                     <h3
@@ -253,7 +253,7 @@ function Dashboard({ user }) {
                     {todo.dueDate && (
                       <p className="text-xs text-accent-600 mt-1 flex items-center gap-1 font-medium">
                         <Calendar className="w-3 h-3" />
-                        ë§ˆê°: {new Date(todo.dueDate).toLocaleDateString('ko-KR')}
+                        마감: {new Date(todo.dueDate).toLocaleDateString('ko-KR')}
                       </p>
                     )}
                   </div>
@@ -267,7 +267,7 @@ function Dashboard({ user }) {
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
-                      {todo.priority === 'HIGH' ? 'ë†’ìŒ' : todo.priority === 'MEDIUM' ? 'ë³´í†µ' : 'ë‚®ìŒ'}
+                      {todo.priority === 'HIGH' ? '높음' : todo.priority === 'MEDIUM' ? '보통' : '낮음'}
                     </span>
                   )}
                 </div>
@@ -279,10 +279,10 @@ function Dashboard({ user }) {
 
       {/* Upcoming Items */}
       {dashboard?.upcomingItems && dashboard.upcomingItems.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <AlertCircle className="w-6 h-6 text-accent-600" />
-            ë‹¤ê°€ì˜¤ëŠ” ì¼ì •
+            다가오는 일정
           </h2>
           <div className="space-y-3">
             {dashboard.upcomingItems.map((item, index) => (
@@ -290,13 +290,13 @@ function Dashboard({ user }) {
                 key={index}
                 onClick={() => item.assignmentId && handleAssignmentClick(item.assignmentId)}
                 className={`border-l-4 border-accent-500 bg-accent-50 rounded-r-lg pl-4 pr-6 py-4 transition-colors ${
-                  item.assignmentId ? 'cursor-pointer hover:bg-accent-100 dark:hover:bg-gray-600' : ''
+                  item.assignmentId ? 'cursor-pointer hover:bg-accent-100' : ''
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white">{item.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-1">
+                    <h3 className="font-bold text-gray-900">{item.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
                       <BookOpen className="w-4 h-4" />
                       {item.courseName}
                     </p>
@@ -337,7 +337,7 @@ function Dashboard({ user }) {
               <div className="bg-accent-50 dark:bg-accent-900 border-l-4 border-accent-500 rounded-r-lg p-4">
                 <div className="flex items-center gap-2 text-accent-700 dark:text-accent-300 font-bold">
                   <Calendar className="w-5 h-5" />
-                  ë§ˆê°ì¼: {new Date(selectedAssignment.dueDate).toLocaleString('ko-KR', {
+                  마감일: {new Date(selectedAssignment.dueDate).toLocaleString('ko-KR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -346,18 +346,18 @@ function Dashboard({ user }) {
                   })}
                 </div>
                 {new Date(selectedAssignment.dueDate) < new Date() && (
-                  <p className="text-sm text-red-600 font-medium mt-2">âš ï¸ ë§ˆê°ì¼ì´ ì§€ë‚¬ìŠµë‹ˆë‹¤!</p>
+                  <p className="text-sm text-red-600 font-medium mt-2">⚠️ 마감일이 지났습니다!</p>
                 )}
                 {new Date(selectedAssignment.dueDate) > new Date() && (
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    ë‚¨ì€ ì‹œê°„: {Math.ceil((new Date(selectedAssignment.dueDate) - new Date()) / (1000 * 60 * 60 * 24))}ì¼
+                    남은 시간: {Math.ceil((new Date(selectedAssignment.dueDate) - new Date()) / (1000 * 60 * 60 * 24))}일
                   </p>
                 )}
               </div>
 
               {/* Description */}
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">ê³¼ì œ ë‚´ìš©</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">과제 내용</h3>
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
                   <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedAssignment.description}</p>
                 </div>
@@ -372,13 +372,13 @@ function Dashboard({ user }) {
                   }}
                   className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all"
                 >
-                  ê°•ì˜ íŽ˜ì´ì§€ë¡œ ì´ë™
+                  강의 페이지로 이동
                 </button>
                 <button
                   onClick={() => setShowAssignmentDetailModal(false)}
                   className="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-all"
                 >
-                  ë‹«ê¸°
+                  닫기
                 </button>
               </div>
             </div>
@@ -414,7 +414,7 @@ function Dashboard({ user }) {
                 <div className="bg-accent-50 dark:bg-accent-900 border-l-4 border-accent-500 rounded-r-lg p-4">
                   <div className="flex items-center gap-2 text-accent-700 dark:text-accent-300 font-bold">
                     <Calendar className="w-5 h-5" />
-                    ë§ˆê°ì¼: {new Date(selectedTodo.dueDate).toLocaleString('ko-KR')}
+                    마감일: {new Date(selectedTodo.dueDate).toLocaleString('ko-KR')}
                   </div>
                 </div>
               )}
@@ -422,7 +422,7 @@ function Dashboard({ user }) {
               {/* Priority */}
               {selectedTodo.priority && (
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-gray-900 dark:text-gray-100">ìš°ì„ ìˆœìœ„:</span>
+                  <span className="font-bold text-gray-900 dark:text-gray-100">우선순위:</span>
                   <span
                     className={`px-3 py-1 rounded-full font-medium ${
                       selectedTodo.priority === 'HIGH'
@@ -432,14 +432,14 @@ function Dashboard({ user }) {
                         : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
                     }`}
                   >
-                    {selectedTodo.priority === 'HIGH' ? 'ë†’ìŒ' : selectedTodo.priority === 'MEDIUM' ? 'ë³´í†µ' : 'ë‚®ìŒ'}
+                    {selectedTodo.priority === 'HIGH' ? '높음' : selectedTodo.priority === 'MEDIUM' ? '보통' : '낮음'}
                   </span>
                 </div>
               )}
 
               {/* Status */}
               <div className="flex items-center gap-3">
-                <span className="font-bold text-gray-900 dark:text-gray-100">ìƒíƒœ:</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100">상태:</span>
                 <span
                   className={`px-3 py-1 rounded-full font-medium ${
                     selectedTodo.completed
@@ -447,7 +447,7 @@ function Dashboard({ user }) {
                       : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
                   }`}
                 >
-                  {selectedTodo.completed ? 'ì™„ë£Œ' : 'ì§„í–‰ ì¤‘'}
+                  {selectedTodo.completed ? '완료' : '진행 중'}
                 </span>
               </div>
 
@@ -460,13 +460,13 @@ function Dashboard({ user }) {
                   }}
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all"
                 >
-                  {selectedTodo.completed ? 'ë¯¸ì™„ë£Œë¡œ ë³€ê²½' : 'ì™„ë£Œë¡œ ë³€ê²½'}
+                  {selectedTodo.completed ? '미완료로 변경' : '완료로 변경'}
                 </button>
                 <button
                   onClick={() => setShowTodoDetailModal(false)}
                   className="px-6 py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-all"
                 >
-                  ë‹«ê¸°
+                  닫기
                 </button>
               </div>
             </div>
@@ -478,4 +478,3 @@ function Dashboard({ user }) {
 }
 
 export default Dashboard;
-
