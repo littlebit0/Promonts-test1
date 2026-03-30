@@ -318,7 +318,7 @@ function AssignmentsPage({ user }) {
                             disabled={isOverdue}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
                               isOverdue
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                 : 'bg-accent-600 text-white hover:bg-accent-700 shadow'
                             }`}
                           >
@@ -331,8 +331,8 @@ function AssignmentsPage({ user }) {
                             disabled={isOverdue}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
                               isOverdue
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800'
                             }`}
                           >
                             <X className="w-4 h-4" />
