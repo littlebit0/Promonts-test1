@@ -240,4 +240,13 @@ export const dashboardAPI = {
   get: () => api.get('/dashboard'),
 };
 
+// Chat API
+export const chatAPI = {
+  getMessages: (courseId) => api.get(`/chat/courses/${courseId}/messages`),
+  sendMessage: (data) => api.post('/chat/messages', data),
+  uploadFile: (formData) => api.post('/chat/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+};
+
 export default api;
