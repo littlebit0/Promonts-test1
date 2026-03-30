@@ -70,11 +70,20 @@ function Dashboard({ user }) {
   };
 
   const handleTodoClick = (todo) => {
-    // 과제 Todo면 과제 상세로
-    if (todo.assignmentId) {
-      handleAssignmentClick(todo.assignmentId);
+    // 과제 Todo — assignmentId 또는 courseId로 강의 페이지 이동
+    if (todo.title?.startsWith('[과제]') || todo.assignmentId) {
+      if (todo.assignmentId) {
+        handleAssignmentClick(todo.assignmentId);
+      } else if (todo.courseId) {
+        // assignmentId는 없지만 courseId는 있는 경우 (기존 데이터) → 강의 페이지로만 이동
+        navigate(`/course/${todo.courseId}`);
+      } else {
+        // 둘 다 없으면 Todo 상세 모달
+        setSelectedTodo(todo);
+        setShowTodoDetailModal(true);
+      }
     } else {
-      // 일반 Todo면 Todo 상세 모달
+      // 일반 Todo
       setSelectedTodo(todo);
       setShowTodoDetailModal(true);
     }

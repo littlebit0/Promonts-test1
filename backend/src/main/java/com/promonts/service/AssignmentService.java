@@ -46,6 +46,8 @@ public class AssignmentService {
                         .user(student)
                         .completed(false)
                         .relatedCourse(course.getName())
+                        .course(course)
+                        .assignmentId(savedAssignment.getId())
                         .build();
                 todoRepository.save(todo);
             }

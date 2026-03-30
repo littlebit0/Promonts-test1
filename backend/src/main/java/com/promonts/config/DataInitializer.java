@@ -143,6 +143,8 @@ public class DataInitializer implements CommandLineRunner {
                     .user(student)
                     .completed(false)
                     .relatedCourse(testCourse.getName())
+                    .course(testCourse)
+                    .assignmentId(testAssignment.getId())
                     .build();
             todoRepository.save(studentTodo);
             log.info("✅ 학생 할 일 자동 생성: [과제] 1주차 과제");
