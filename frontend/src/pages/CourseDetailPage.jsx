@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI } from '../services/api';
 import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File } from 'lucide-react';
 
@@ -32,6 +32,7 @@ function isPdf(filename) {
 function CourseDetailPage({ user }) {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [course, setCourse] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(1);
@@ -46,7 +47,7 @@ function CourseDetailPage({ user }) {
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', dueDate: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
-  const [previewMaterial, setPreviewMaterial] = useState(null); // { url, type: 'image'|'pdf', title }
+  const [previewMaterial, setPreviewMaterial] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -57,6 +58,18 @@ function CourseDetailPage({ user }) {
       loadWeekDetail();
     }
   }, [selectedWeek]);
+
+  // Dashboard에서 과제 클릭 시 0.5초 후 모달 자동 오픈
+  useEffect(() => {
+    const { openAssignmentId, assignmentData } = location.state || {};
+    if (openAssignmentId && assignmentData && !loading) {
+      const timer = setTimeout(() => {
+        setSelectedAssignmentDetail(assignmentData);
+        setShowAssignmentDetailModal(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, location.state]);
 
   const loadData = async () => {
     try {

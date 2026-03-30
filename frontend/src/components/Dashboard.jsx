@@ -51,8 +51,18 @@ function Dashboard({ user }) {
   const handleAssignmentClick = async (assignmentId) => {
     try {
       const response = await assignmentAPI.getById(assignmentId);
-      setSelectedAssignment(response.data);
-      setShowAssignmentDetailModal(true);
+      const assignment = response.data;
+      const courseId = assignment.course?.id;
+      if (courseId) {
+        // 강의 페이지로 이동 + assignment 정보 state로 전달
+        navigate(`/course/${courseId}`, {
+          state: { openAssignmentId: assignmentId, assignmentData: assignment }
+        });
+      } else {
+        // courseId 없으면 기존대로 모달
+        setSelectedAssignment(assignment);
+        setShowAssignmentDetailModal(true);
+      }
     } catch (error) {
       console.error('Failed to load assignment:', error);
       alert('과제 정보를 불러올 수 없습니다.');
