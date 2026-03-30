@@ -1,7 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI } from '../services/api';
-import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X } from 'lucide-react';
+import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File } from 'lucide-react';
+
+function formatFileSize(bytes) {
+  if (!bytes) return '';
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / 1024).toFixed(1)} KB`;
+}
+
+function getFileIcon(filename) {
+  if (!filename) return { icon: File, color: 'text-gray-500' };
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (ext === 'pdf') return { icon: FileText, color: 'text-red-500' };
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return { icon: Image, color: 'text-green-500' };
+  if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) return { icon: FileText, color: 'text-blue-500' };
+  return { icon: File, color: 'text-gray-500' };
+}
+
+function isImage(filename) {
+  if (!filename) return false;
+  const ext = filename.split('.').pop()?.toLowerCase();
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext);
+}
+
+function isPdf(filename) {
+  if (!filename) return false;
+  return filename.split('.').pop()?.toLowerCase() === 'pdf';
+}
 
 function CourseDetailPage({ user }) {
   const { courseId } = useParams();
@@ -20,6 +46,7 @@ function CourseDetailPage({ user }) {
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', dueDate: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
+  const [previewMaterial, setPreviewMaterial] = useState(null); // { url, type: 'image'|'pdf', title }
 
   useEffect(() => {
     loadData();
@@ -206,49 +233,68 @@ function CourseDetailPage({ user }) {
               </div>
             ) : (
               <div className="space-y-3">
-                {weekDetail.materials.map((material) => (
-                  <div
-                    key={material.id}
-                    className="border-2 border-gray-100 rounded-lg p-4 hover:border-primary-300 transition-all"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <FileText className="w-5 h-5 text-primary-600 mt-1" />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{material.title}</h4>
-                          {material.description && (
-                            <p className="text-sm text-gray-600 mt-1">{material.description}</p>
-                          )}
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {new Date(material.uploadedAt).toLocaleDateString('ko-KR')}
-                            </span>
-                            <span>{material.uploadedByName}</span>
-                            <span>{(material.fileSize / 1024).toFixed(1)} KB</span>
+                {weekDetail.materials.map((material) => {
+                  const fileInfo = getFileIcon(material.originalFileName || material.title);
+                  const FileIcon = fileInfo.icon;
+                  const canPreview = isImage(material.originalFileName) || isPdf(material.originalFileName);
+                  const previewUrl = `http://localhost:8080/api/materials/${material.id}/download`;
+                  return (
+                    <div
+                      key={material.id}
+                      className="border-2 border-gray-100 dark:border-gray-700 rounded-lg p-4 hover:border-primary-300 dark:hover:border-primary-500 transition-all"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <FileIcon className={`w-5 h-5 mt-1 ${fileInfo.color}`} />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 dark:text-white">{material.title}</h4>
+                            {material.description && (
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{material.description}</p>
+                            )}
+                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(material.uploadedAt).toLocaleDateString('ko-KR')}
+                              </span>
+                              <span>{material.uploadedByName}</span>
+                              {material.fileSize > 0 && <span>{formatFileSize(material.fileSize)}</span>}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <a
-                          href={`http://localhost:8080/api/materials/${material.id}/download`}
-                          download
-                          className="text-primary-600 hover:text-primary-700 p-2"
-                        >
-                          <Download className="w-4 h-4" />
-                        </a>
-                        {isProfessor && (
-                          <button
-                            onClick={() => handleMaterialDelete(material.id)}
-                            className="text-red-600 hover:text-red-700 p-2"
+                        <div className="flex gap-1">
+                          {canPreview && (
+                            <button
+                              onClick={() => setPreviewMaterial({
+                                url: previewUrl,
+                                type: isImage(material.originalFileName) ? 'image' : 'pdf',
+                                title: material.title,
+                              })}
+                              className="text-green-600 hover:text-green-700 p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition"
+                              title="미리보기"
+                            >
+                              <Image className="w-4 h-4" />
+                            </button>
+                          )}
+                          <a
+                            href={previewUrl}
+                            download
+                            className="text-primary-600 hover:text-primary-700 p-2 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                            <Download className="w-4 h-4" />
+                          </a>
+                          {isProfessor && (
+                            <button
+                              onClick={() => handleMaterialDelete(material.id)}
+                              className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -449,6 +495,38 @@ function CourseDetailPage({ user }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* File Preview Modal */}
+      {previewMaterial && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="font-bold text-gray-900 dark:text-white truncate">{previewMaterial.title}</h3>
+              <button
+                onClick={() => setPreviewMaterial(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ml-4 flex-shrink-0"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center min-h-[60vh]">
+              {previewMaterial.type === 'image' ? (
+                <img
+                  src={previewMaterial.url}
+                  alt={previewMaterial.title}
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                />
+              ) : (
+                <iframe
+                  src={previewMaterial.url}
+                  className="w-full h-full min-h-[60vh] rounded-lg"
+                  title={previewMaterial.title}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}

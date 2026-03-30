@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, CheckSquare, Award, Calendar,
@@ -28,8 +28,41 @@ const MAIN_NAV = ['/', '/todos', '/grades', '/calendar', '/search', '/profile'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const isAdmin = user.role === 'ADMIN';
   const location = useLocation();
+  const intervalRef = useRef(null);
+
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await fetch(`${API_BASE}/notifications/unread/count`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const count = await res.json();
+        setUnreadCount(typeof count === 'number' ? count : count?.count || 0);
+      }
+    } catch (e) {
+      // silent
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    intervalRef.current = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  // Reset count when visiting notifications page
+  useEffect(() => {
+    if (location.pathname === '/notifications') {
+      setUnreadCount(0);
+    }
+  }, [location.pathname]);
 
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -201,9 +234,9 @@ function Navbar({ user, onLogout }) {
               { to: '/', icon: LayoutDashboard, label: '홈' },
               { to: '/courses', icon: BookOpen, label: '강의' },
               { to: '/todos', icon: CheckSquare, label: 'Todo' },
-              { to: '/notifications', icon: Bell, label: '알림' },
+              { to: '/notifications', icon: Bell, label: '알림', badge: unreadCount },
               { to: '/profile', icon: UserCircle, label: '프로필' },
-            ].map(({ to, icon: Icon, label }) => (
+            ].map(({ to, icon: Icon, label, badge }) => (
               <Link
                 key={to}
                 to={to}
@@ -213,7 +246,14 @@ function Navbar({ user, onLogout }) {
                     : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive(to) ? 'scale-110' : ''} transition-transform`} />
+                <div className="relative">
+                  <Icon className={`w-5 h-5 ${isActive(to) ? 'scale-110' : ''} transition-transform`} />
+                  {badge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center leading-none">
+                      {badge > 9 ? '9+' : badge}
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-medium">{label}</span>
               </Link>
             ))}
