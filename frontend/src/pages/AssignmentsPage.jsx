@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { PageSkeleton } from '../components/LoadingSkeleton';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { courseAPI, assignmentAPI, submissionAPI } from '../services/api';
 import { FileText, Plus, Trash2, Calendar, BookOpen, AlertCircle, Upload, CheckCircle, Users, X, Download, Star } from 'lucide-react';
@@ -7,6 +9,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 function AssignmentsPage({ user }) {
   const [courses, setCourses] = useState([]);
+  const toast = useToast();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,13 +26,13 @@ function AssignmentsPage({ user }) {
   const [submitContent, setSubmitContent] = useState('');
   const [submitFile, setSubmitFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [mySubmissions, setMySubmissions] = useState({}); // assignmentId -> submission
+  const [mySubmissions, setMySubmissions] = useState({});
 
   // 교수용: 제출 목록 모달
   const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
   const [submissionsList, setSubmissionsList] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
-  const [gradingId, setGradingId] = useState(null); // 채점 중인 submissionId
+  const [gradingId, setGradingId] = useState(null);
   const [gradeInput, setGradeInput] = useState({ score: '', feedback: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
@@ -100,7 +103,7 @@ function AssignmentsPage({ user }) {
       loadAssignments(selectedCourse);
     } catch (error) {
       console.error('Failed to save assignment:', error);
-      alert('과제 저장에 실패했습니다.');
+      toast.success('과제 저장에 실패했습니다.');
     }
   };
 
@@ -111,7 +114,7 @@ function AssignmentsPage({ user }) {
       loadAssignments(selectedCourse);
     } catch (error) {
       console.error('Failed to delete assignment:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 
@@ -126,7 +129,7 @@ function AssignmentsPage({ user }) {
   const handleSubmitAssignment = async (e) => {
     e.preventDefault();
     if (!submitContent && !submitFile) {
-      alert('내용 또는 파일을 입력해주세요.');
+      toast.info('내용 또는 파일을 입력해주세요.');
       return;
     }
     setSubmitting(true);
@@ -137,10 +140,10 @@ function AssignmentsPage({ user }) {
       await submissionAPI.submit(selectedAssignment.id, formData);
       setShowSubmitModal(false);
       loadMySubmission(selectedAssignment.id);
-      alert('제출 완료!');
+      toast.success('제출 완료!');
     } catch (error) {
       console.error('Failed to submit:', error);
-      alert('제출에 실패했습니다.');
+      toast.error('제출에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -156,7 +159,7 @@ function AssignmentsPage({ user }) {
         return next;
       });
     } catch (error) {
-      alert('제출 취소에 실패했습니다.');
+      toast.error('제출 취소에 실패했습니다.');
     }
   };
 
@@ -178,7 +181,7 @@ function AssignmentsPage({ user }) {
 
   // 교수: 채점
   const handleGrade = async (submissionId) => {
-    if (!gradeInput.score && gradeInput.score !== 0) { alert('점수를 입력하세요.'); return; }
+    if (!gradeInput.score && gradeInput.score !== 0) { toast.info('점수를 입력하세요.'); return; }
     try {
       await submissionAPI.grade(submissionId, gradeInput.score, gradeInput.feedback);
       setSubmissionsList(prev => prev.map(s =>
@@ -187,7 +190,7 @@ function AssignmentsPage({ user }) {
       setGradingId(null);
       setGradeInput({ score: '', feedback: '' });
     } catch (e) {
-      alert('채점에 실패했습니다.');
+      toast.error('채점에 실패했습니다.');
     }
   };
 

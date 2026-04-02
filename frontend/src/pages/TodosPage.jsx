@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { todoAPI, courseAPI } from '../services/api';
 import { CheckSquare, Plus, X, Calendar, AlertCircle, BookOpen, Filter } from 'lucide-react';
 
 function TodosPage() {
   const [todos, setTodos] = useState([]);
+  const toast = useToast();
   const [courses, setCourses] = useState([]);
   const [filter, setFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +52,7 @@ function TodosPage() {
       loadTodos();
     } catch (error) {
       console.error('Failed to save todo:', error);
-      alert('할 일 저장에 실패했습니다.');
+      toast.success('할 일 저장에 실패했습니다.');
     }
   };
 
@@ -70,7 +72,7 @@ function TodosPage() {
       loadTodos();
     } catch (error) {
       console.error('Failed to delete todo:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 

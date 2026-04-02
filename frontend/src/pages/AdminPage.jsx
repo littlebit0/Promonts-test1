@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Shield, Users, BookOpen, FileText, AlertCircle, Trash2, Plus, X, UserPlus } from 'lucide-react';
 import axios from 'axios';
 
 function AdminPage({ user }) {
   const [stats, setStats] = useState(null);
+  const toast = useToast();
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,11 +53,11 @@ function AdminPage({ user }) {
       await axios.delete(`http://localhost:8080/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('삭제되었습니다.');
+      toast.info('삭제되었습니다.');
       loadData();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 
@@ -66,13 +68,13 @@ function AdminPage({ user }) {
       await axios.post('http://localhost:8080/api/auth/register', newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('사용자가 생성되었습니다.');
+      toast.info('사용자가 생성되었습니다.');
       setShowUserModal(false);
       setNewUser({ name: '', email: '', password: '', role: 'STUDENT' });
       loadData();
     } catch (error) {
       console.error('Failed to create user:', error);
-      alert('사용자 생성에 실패했습니다.');
+      toast.error('사용자 생성에 실패했습니다.');
     }
   };
 
@@ -83,11 +85,11 @@ function AdminPage({ user }) {
       await axios.delete(`http://localhost:8080/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('삭제되었습니다.');
+      toast.info('삭제되었습니다.');
       loadData();
     } catch (error) {
       console.error('Failed to delete course:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 

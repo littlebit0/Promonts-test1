@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { noticeAPI, courseAPI } from '../services/api';
 import { Bell, Plus, X, Calendar, BookOpen, Filter } from 'lucide-react';
 
 function NoticesPage({ user }) {
   const [notices, setNotices] = useState([]);
+  const toast = useToast();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -48,7 +50,7 @@ function NoticesPage({ user }) {
       setSelectedNotice(null);
     } catch (error) {
       console.error('Failed to save notice:', error);
-      alert('공지사항 저장에 실패했습니다.');
+      toast.success('공지사항 저장에 실패했습니다.');
     }
   };
 

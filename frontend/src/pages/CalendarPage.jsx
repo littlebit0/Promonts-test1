@@ -1,4 +1,6 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { PageSkeleton } from '../components/LoadingSkeleton';
+import { useState, useEffect } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Calendar as CalendarIcon, Plus, List, Trash2, X, MapPin, Clock, Palette } from 'lucide-react';
 import { scheduleAPI } from '../services/api';
@@ -12,6 +14,7 @@ const defaultForm = { title: '', startTime: '', endTime: '', location: '', descr
 
 export default function CalendarPage() {
   const [schedules, setSchedules] = useState([]);
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('calendar');
   const [selectedSchedule, setSelectedSchedule] = useState(null);
@@ -74,7 +77,7 @@ export default function CalendarPage() {
       setForm(defaultForm);
       fetchSchedules();
     } catch (error) {
-      alert('일정 저장에 실패했습니다: ' + (error.response?.data?.error || error.message));
+      toast.error('일정 저장에 실패했습니다: ' + (error.response?.data?.error || error.message));
     } finally {
       setSaving(false);
     }
@@ -88,11 +91,11 @@ export default function CalendarPage() {
       setSchedules(prev => prev.filter(s => s.id !== id));
       if (showDetailModal && selectedSchedule?.id === id) setShowDetailModal(false);
     } catch (error) {
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 
-  if (loading) return <div className="text-center py-12 dark:text-gray-300">로딩 중...</div>;
+  if (loading) return <div className="max-w-6xl mx-auto p-6"><PageSkeleton /></div>;
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">

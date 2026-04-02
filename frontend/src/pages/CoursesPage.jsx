@@ -1,10 +1,13 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { PageSkeleton } from '../components/LoadingSkeleton';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { courseAPI, enrollmentAPI } from '../services/api';
 import { BookOpen, Plus, Edit2, Trash2, X, Calendar, User, UserPlus, UserMinus, CheckCircle, Search, Users } from 'lucide-react';
 
 function CoursesPage({ user }) {
   const [courses, setCourses] = useState([]);
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
@@ -19,7 +22,7 @@ function CoursesPage({ user }) {
   // 학생 수강신청 관련 상태
   const [enrolledIds, setEnrolledIds] = useState(new Set());
   const [enrollLoading, setEnrollLoading] = useState({});
-  const [viewMode, setViewMode] = useState('all'); // 'all' | 'my'
+  const [viewMode, setViewMode] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // 교수: 수강생 목록 모달
@@ -71,7 +74,7 @@ function CoursesPage({ user }) {
       await enrollmentAPI.enroll(courseId);
       setEnrolledIds((prev) => new Set([...prev, courseId]));
     } catch (error) {
-      alert(error.response?.data?.error || '수강 신청에 실패했습니다.');
+      toast.error(error.response?.data?.error || '수강 신청에 실패했습니다.');
     } finally {
       setEnrollLoading((prev) => ({ ...prev, [courseId]: false }));
     }
@@ -89,7 +92,7 @@ function CoursesPage({ user }) {
         return next;
       });
     } catch (error) {
-      alert(error.response?.data?.error || '수강 취소에 실패했습니다.');
+      toast.error(error.response?.data?.error || '수강 취소에 실패했습니다.');
     } finally {
       setEnrollLoading((prev) => ({ ...prev, [courseId]: false }));
     }
@@ -124,7 +127,7 @@ function CoursesPage({ user }) {
       loadCourses();
     } catch (error) {
       console.error('Failed to save course:', error);
-      alert('강의 저장에 실패했습니다.');
+      toast.success('강의 저장에 실패했습니다.');
     }
   };
 
@@ -147,7 +150,7 @@ function CoursesPage({ user }) {
       loadCourses();
     } catch (error) {
       console.error('Failed to delete course:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 

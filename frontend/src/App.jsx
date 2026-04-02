@@ -99,7 +99,7 @@ function App() {
                       <Route path="grades" element={<Navigate to="/academic" replace />} />
                       <Route path="calendar" element={<CalendarPage />} />
                       <Route path="attendance" element={<AttendancePage user={user} />} />
-                      <Route path="exams" element={<ExamsPage />} />
+                      <Route path="exams" element={<ExamsPage user={user} />} />
                       <Route path="search" element={<SearchPage />} />
                       <Route path="stats" element={<StatsPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,3 +1,4 @@
+﻿import { useToast } from '../components/Toast';
 import { useState, useEffect, useRef } from 'react';
 import { CheckCircle, Users, QrCode, RefreshCw, Clock, BookOpen, Scan } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -14,6 +15,7 @@ export default function AttendancePage({ user }) {
 
   // 공통
   const [courses, setCourses] = useState([]);
+  const toast = useToast();
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   // 교수용
@@ -101,7 +103,7 @@ export default function AttendancePage({ user }) {
       setActiveSession(res.data);
       startTimer(res.data.expiresAt);
     } catch (e) {
-      alert('출석 세션 생성 실패: ' + (e.response?.data?.error || e.message));
+      toast.error('출석 세션 생성 실패: ' + (e.response?.data?.error || e.message));
     } finally {
       setSessionLoading(false);
     }

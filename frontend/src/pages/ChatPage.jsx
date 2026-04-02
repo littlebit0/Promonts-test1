@@ -1,3 +1,4 @@
+﻿import { useToast } from '../components/Toast';
 import { useEffect, useState, useRef } from 'react';
 import { MessageCircle, Send, Paperclip, X, FileText, Download, Hash, Users } from 'lucide-react';
 import { Client } from '@stomp/stompjs';
@@ -8,6 +9,7 @@ const SERVER_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 function ChatPage({ user }) {
   const [courses, setCourses] = useState([]);
+  const toast = useToast();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -78,7 +80,7 @@ function ChatPage({ user }) {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 20 * 1024 * 1024) { alert('파일 크기는 20MB 이하여야 합니다.'); return; }
+    if (file.size > 20 * 1024 * 1024) { toast.info('파일 크기는 20MB 이하여야 합니다.'); return; }
     const isImage = file.type.startsWith('image/');
     setAttachedFile({ file, preview: isImage ? URL.createObjectURL(file) : null, isImage });
     e.target.value = '';
@@ -127,7 +129,7 @@ function ChatPage({ user }) {
       removeAttachedFile();
     } catch (err) {
       console.error(err);
-      alert('메시지 전송에 실패했습니다: ' + (err.response?.data?.error || err.message));
+      toast.error('메시지 전송에 실패했습니다: ' + (err.response?.data?.error || err.message));
       setAttachedFile(prev => prev ? { ...prev, uploading: false } : null);
     }
   };

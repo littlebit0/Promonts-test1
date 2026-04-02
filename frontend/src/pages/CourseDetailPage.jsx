@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useToast } from '../components/Toast';
+import { PageSkeleton } from '../components/LoadingSkeleton';
+import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI, submissionAPI } from '../services/api';
@@ -35,6 +37,7 @@ function CourseDetailPage({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [course, setCourse] = useState(null);
+  const toast = useToast();
   const [weeks, setWeeks] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [weekDetail, setWeekDetail] = useState(null);
@@ -50,7 +53,7 @@ function CourseDetailPage({ user }) {
   const [selectedAssignmentDetail, setSelectedAssignmentDetail] = useState(null);
 
   // 과제 제출 상태
-  const [mySubmission, setMySubmission] = useState(null); // 현재 선택된 과제의 내 제출
+  const [mySubmission, setMySubmission] = useState(null);
   const [submitContent, setSubmitContent] = useState('');
   const [submitFile, setSubmitFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -109,7 +112,7 @@ function CourseDetailPage({ user }) {
   const handleMaterialUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) {
-      alert('파일을 선택하세요.');
+      toast.info('파일을 선택하세요.');
       return;
     }
 
@@ -122,14 +125,14 @@ function CourseDetailPage({ user }) {
 
     try {
       await materialAPI.upload(courseId, selectedWeek, formData);
-      alert('강의 자료가 업로드되었습니다.');
+      toast.info('강의 자료가 업로드되었습니다.');
       setShowMaterialModal(false);
       setMaterialForm({ title: '', description: '' });
       setUploadFile(null);
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to upload material:', error);
-      alert('업로드에 실패했습니다.');
+      toast.error('업로드에 실패했습니다.');
     }
   };
 
@@ -137,11 +140,11 @@ function CourseDetailPage({ user }) {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await materialAPI.delete(courseId, materialId);
-      alert('삭제되었습니다.');
+      toast.info('삭제되었습니다.');
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to delete material:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 
@@ -152,13 +155,13 @@ function CourseDetailPage({ user }) {
         ...assignmentForm,
         weekId: weekDetail.week.id,
       });
-      alert('과제가 등록되었습니다.');
+      toast.info('과제가 등록되었습니다.');
       setShowAssignmentModal(false);
       setAssignmentForm({ title: '', description: '', dueDate: '' });
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to create assignment:', error);
-      alert('과제 등록에 실패했습니다.');
+      toast.error('과제 등록에 실패했습니다.');
     }
   };
 
@@ -178,7 +181,7 @@ function CourseDetailPage({ user }) {
 
   const handleSubmitAssignment = async (e) => {
     e.preventDefault();
-    if (!submitContent && !submitFile) { alert('내용 또는 파일을 입력해주세요.'); return; }
+    if (!submitContent && !submitFile) { toast.info('내용 또는 파일을 입력해주세요.'); return; }
     setSubmitting(true);
     try {
       const formData = new FormData();
@@ -188,9 +191,9 @@ function CourseDetailPage({ user }) {
       setMySubmission(res.data);
       setSubmitContent('');
       setSubmitFile(null);
-      alert('제출 완료!');
+      toast.success('제출 완료!');
     } catch (e) {
-      alert('제출 실패: ' + (e.response?.data?.error || e.message));
+      toast.error('제출 실패: ' + (e.response?.data?.error || e.message));
     } finally {
       setSubmitting(false);
     }
@@ -202,18 +205,18 @@ function CourseDetailPage({ user }) {
       await submissionAPI.delete(mySubmission.id);
       setMySubmission(null);
     } catch (e) {
-      alert('제출 취소 실패');
+      toast.error('제출 취소 실패');
     }
   };
 
   const handleAssignmentDelete = async (assignmentId) => {    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await assignmentAPI.delete(assignmentId);
-      alert('삭제되었습니다.');
+      toast.info('삭제되었습니다.');
       loadWeekDetail();
     } catch (error) {
       console.error('Failed to delete assignment:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 

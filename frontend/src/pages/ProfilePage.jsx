@@ -1,9 +1,11 @@
+﻿import { useToast } from '../components/Toast';
 import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Save } from 'lucide-react';
 import { profileAPI } from '../services/api';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
+  const toast = useToast();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -29,28 +31,28 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       await profileAPI.update(formData);
-      alert('프로필이 업데이트되었습니다');
+      toast.success('프로필이 업데이트되었습니다');
       fetchProfile();
       setEditing(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('업데이트 실패: ' + (error.response?.data?.error || error.message));
+      toast.error('업데이트 실패: ' + (error.response?.data?.error || error.message));
     }
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('새 비밀번호가 일치하지 않습니다');
+      toast.info('새 비밀번호가 일치하지 않습니다');
       return;
     }
     try {
       await profileAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
-      alert('비밀번호가 변경되었습니다');
+      toast.success('비밀번호가 변경되었습니다');
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       console.error('Failed to change password:', error);
-      alert('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
+      toast.error('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
     }
   };
 
