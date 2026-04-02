@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { courseAPI, enrollmentAPI } from '../services/api';
 import { BookOpen, Plus, Edit2, Trash2, X, Calendar, User, UserPlus, UserMinus, CheckCircle, Search, Users } from 'lucide-react';
 
@@ -23,6 +24,10 @@ function CoursesPage({ user }) {
 
   // 교수: 수강생 목록 모달
   const [showStudentsModal, setShowStudentsModal] = useState(false);
+  useEscapeKey(() => {
+    if (showStudentsModal) { setShowStudentsModal(false); return; }
+    if (showModal) setShowModal(false);
+  }, showModal || showStudentsModal);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedCourseForStudents, setSelectedCourseForStudents] = useState(null);
   const [loadingStudents, setLoadingStudents] = useState(false);

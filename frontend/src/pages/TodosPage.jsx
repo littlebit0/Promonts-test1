@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { todoAPI, courseAPI } from '../services/api';
 import { CheckSquare, Plus, X, Calendar, AlertCircle, BookOpen, Filter } from 'lucide-react';
 
@@ -7,6 +8,7 @@ function TodosPage() {
   const [courses, setCourses] = useState([]);
   const [filter, setFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  useEscapeKey(() => { if (showModal) setShowModal(false); }, showModal);
   const [formData, setFormData] = useState({
     title: '',
     description: '',

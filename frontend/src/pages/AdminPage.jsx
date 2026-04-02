@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Shield, Users, BookOpen, FileText, AlertCircle, Trash2, Plus, X, UserPlus } from 'lucide-react';
 import axios from 'axios';
 
@@ -8,6 +9,7 @@ function AdminPage({ user }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
+  useEscapeKey(() => { if (showUserModal) setShowUserModal(false); }, showUserModal);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'STUDENT' });
 
   useEffect(() => {

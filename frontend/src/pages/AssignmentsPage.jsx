@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { courseAPI, assignmentAPI, submissionAPI } from '../services/api';
 import { FileText, Plus, Trash2, Calendar, BookOpen, AlertCircle, Upload, CheckCircle, Users, X, Download, Star } from 'lucide-react';
 
@@ -32,6 +33,12 @@ function AssignmentsPage({ user }) {
   const [gradeInput, setGradeInput] = useState({ score: '', feedback: '' });
 
   const isProfessor = user.role === 'PROFESSOR';
+  // ESC 키로 모달 닫기
+  useEscapeKey(() => {
+    if (showSubmissionsModal) { setShowSubmissionsModal(false); return; }
+    if (showSubmitModal) { setShowSubmitModal(false); return; }
+    if (showModal) setShowModal(false);
+  }, showModal || showSubmitModal || showSubmissionsModal);
   const isStudent = user.role === 'STUDENT';
 
   useEffect(() => {

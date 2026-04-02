@@ -29,6 +29,18 @@ const MAIN_NAV = ['/', '/todos', '/assignments', '/academic', '/chat', '/calenda
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // 모바일 드로어 + 검색 ESC 닫기
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        if (menuOpen) setMenuOpen(false);
+        if (searchOpen) setSearchOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [menuOpen, searchOpen]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,8 +132,20 @@ function Navbar({ user, onLogout }) {
         setProfileEditing(false);
       }
     };
-    if (profileOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setProfileOpen(false);
+        setProfileEditing(false);
+      }
+    };
+    if (profileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
   }, [profileOpen]);
 
   // 프로필 데이터 로드

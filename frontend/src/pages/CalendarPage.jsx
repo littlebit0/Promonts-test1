@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Calendar as CalendarIcon, Plus, List, Trash2, X, MapPin, Clock, Palette } from 'lucide-react';
 import { scheduleAPI } from '../services/api';
 import SimpleCalendar from '../components/SimpleCalendar';
@@ -16,6 +17,10 @@ export default function CalendarPage() {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  useEscapeKey(() => {
+    if (showDetailModal) { setShowDetailModal(false); return; }
+    if (showAddModal) setShowAddModal(false);
+  }, showDetailModal || showAddModal);
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
 

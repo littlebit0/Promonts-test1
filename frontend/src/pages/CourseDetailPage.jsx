@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { courseAPI, weekAPI, materialAPI, assignmentAPI, submissionAPI } from '../services/api';
 import { BookOpen, Calendar, ChevronLeft, Plus, FileText, Clock, Download, Trash2, Upload, X, Image, File, CheckCircle, AlertCircle } from 'lucide-react';
@@ -41,6 +42,11 @@ function CourseDetailPage({ user }) {
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showAssignmentDetailModal, setShowAssignmentDetailModal] = useState(false);
+  useEscapeKey(() => {
+    if (showAssignmentDetailModal) { setShowAssignmentDetailModal(false); return; }
+    if (showAssignmentModal) { setShowAssignmentModal(false); return; }
+    if (showMaterialModal) setShowMaterialModal(false);
+  }, showMaterialModal || showAssignmentModal || showAssignmentDetailModal);
   const [selectedAssignmentDetail, setSelectedAssignmentDetail] = useState(null);
 
   // 과제 제출 상태
