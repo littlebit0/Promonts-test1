@@ -29,18 +29,6 @@ const MAIN_NAV = ['/', '/todos', '/assignments', '/academic', '/chat', '/calenda
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // 모바일 드로어 + 검색 ESC 닫기
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') {
-        if (menuOpen) setMenuOpen(false);
-        if (searchOpen) setSearchOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [menuOpen, searchOpen]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +38,18 @@ function Navbar({ user, onLogout }) {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [profileLoading, setProfileLoading] = useState(false);
+
+  // 모바일 드로어 + 검색 ESC 닫기
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        if (menuOpen) { setMenuOpen(false); return; }
+        if (searchOpen) setSearchOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [menuOpen, searchOpen]);
 
   const isAdmin = user.role === 'ADMIN';
   const location = useLocation();
