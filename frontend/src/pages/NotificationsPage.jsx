@@ -3,10 +3,10 @@ import { Bell, Check, CheckCheck, Trash2, FileText, Award, Info } from 'lucide-r
 import { notificationAPI } from '../services/api';
 
 const TYPE_CONFIG = {
-  NOTICE: { icon: Bell, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/30' },
+  NOTICE:     { icon: Bell,     color: 'text-blue-500',   bg: 'bg-blue-50 dark:bg-blue-900/30' },
   ASSIGNMENT: { icon: FileText, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-900/30' },
-  GRADE: { icon: Award, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/30' },
-  SYSTEM: { icon: Info, color: 'text-gray-500', bg: 'bg-gray-50 dark:bg-gray-700/50' },
+  GRADE:      { icon: Award,    color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/30' },
+  SYSTEM:     { icon: Info,     color: 'text-gray-500',   bg: 'bg-gray-50 dark:bg-gray-700/50' },
 };
 
 const getTypeConfig = (type) => TYPE_CONFIG[type] || TYPE_CONFIG.SYSTEM;
@@ -79,11 +79,11 @@ export default function NotificationsPage() {
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
         >
           <CheckCheck className="w-5 h-5" />
-          모두 읽음 처리
+          모두 읽음
         </button>
       </div>
 
-      {/* Filter Tabs */}
+      {/* 필터 탭 */}
       <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
         {[
           { key: 'all', label: '전체' },
@@ -110,7 +110,7 @@ export default function NotificationsPage() {
           <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
           <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">알림이 없습니다</p>
           <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-            {filter === 'unread' ? '읽지 않은 알림이 없습니다' : '새로운 알림이 없습니다'}
+            {filter === 'unread' ? '읽지 않은 알림이 없습니다' : '아직 알림이 없습니다'}
           </p>
         </div>
       ) : (

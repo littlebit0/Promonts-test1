@@ -5,6 +5,8 @@ import {
   UserCircle, Search, Shield, LogOut, Menu, X, Bell, BarChart2,
   MessageSquare, FileText, ClipboardList, QrCode, User, Lock, Save, ChevronRight
 } from 'lucide-react';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import ThemeToggle from './ThemeToggle';
 import { profileAPI } from '../services/api';
 
@@ -43,10 +45,12 @@ function Navbar({ user, onLogout }) {
   const intervalRef = useRef(null);
   const searchInputRef = useRef(null);
   const profileRef = useRef(null);
+  const stompRef = useRef(null);
 
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+  const SERVER_BASE = API_BASE.replace('/api', '');
 
-  // 알림 카운트
+  // 알림 카운트 (초기 로드)
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -55,11 +59,42 @@ function Navbar({ user, onLogout }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const count = await res.json();
-        setUnreadCount(typeof count === 'number' ? count : count?.count || 0);
+        const data = await res.json();
+        setUnreadCount(typeof data === 'number' ? data : data?.count || 0);
       }
     } catch (e) {}
   };
+
+  // WebSocket 알림 구독
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token || !user?.id) return;
+
+    // userId 파싱
+    let userId = user.id;
+    try {
+      if (!userId) {
+        const saved = localStorage.getItem('user');
+        if (saved) userId = JSON.parse(saved).id;
+      }
+    } catch {}
+    if (!userId) return;
+
+    const socket = new SockJS(`${SERVER_BASE}/ws`);
+    const client = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        client.subscribe(`/topic/notifications/${userId}`, () => {
+          // 새 알림 → 카운트 +1
+          setUnreadCount(prev => prev + 1);
+        });
+      },
+    });
+    client.activate();
+    stompRef.current = client;
+
+    return () => { client.deactivate(); };
+  }, [user?.id]);
 
   useEffect(() => {
     fetchUnreadCount();
