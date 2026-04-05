@@ -15,6 +15,15 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    // 글로벌 생성 (courseId 포함)
+    @Transactional
+    public NoticeResponse createNotice(Long courseId, GlobalNoticeRequest request, String professorEmail) {
+        NoticeRequest nr = NoticeRequest.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .build();
+        return createNotice(courseId, nr, professorEmail);
+    }
     @Transactional
     public NoticeResponse createNotice(Long courseId, NoticeRequest request, String professorEmail) {
         Course course = courseRepository.findById(courseId)
@@ -38,6 +47,13 @@ public class NoticeService {
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항입니다: " + noticeId));
         return NoticeResponse.from(notice);
+    }
+    @Transactional(readOnly = true)
+    public List<NoticeListResponse> getAllNotices() {
+        return noticeRepository.findAll().stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(NoticeListResponse::from)
+                .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
     public List<NoticeListResponse> getNoticesByCourse(Long courseId) {
