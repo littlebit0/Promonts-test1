@@ -1,3 +1,4 @@
+import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useState, useEffect } from 'react';
 import { Award, TrendingUp, BarChart3 } from 'lucide-react';
 import { gradeAPI } from '../services/api';
@@ -32,7 +33,7 @@ export default function GradesPage() {
     return 'bg-red-600 text-white';
   };
 
-  if (loading) return <div className="text-center py-12">로딩 중...</div>;
+  if (loading) return <PageSkeleton />;
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">

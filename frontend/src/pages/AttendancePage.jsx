@@ -1,3 +1,4 @@
+import { PageSkeleton } from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import { useToast } from '../components/Toast';
 import { useState, useEffect, useRef } from 'react';
@@ -133,7 +134,7 @@ export default function AttendancePage({ user }) {
     return `${m}:${s}`;
   };
 
-  if (loading) return <div className="text-center py-12 dark:text-gray-300">로딩 중...</div>;
+  if (loading) return <PageSkeleton />;
 
   // ─── 교수 뷰 ───────────────────────────────────────────────────────────────
   if (isProfessor) {

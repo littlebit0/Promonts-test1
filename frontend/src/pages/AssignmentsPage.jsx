@@ -196,7 +196,7 @@ function AssignmentsPage({ user }) {
   };
 
   if (loading) {
-    return <div className="text-center py-8">로딩 중...</div>;
+    return <PageSkeleton />;
   }
 
   if (courses.length === 0) {
@@ -534,7 +534,7 @@ function AssignmentsPage({ user }) {
             <div className="p-6 overflow-y-auto flex-1">
               <p className="font-bold text-gray-800 dark:text-white mb-4">{selectedAssignment.title}</p>
               {loadingSubmissions ? (
-                <div className="text-center py-8 text-gray-400">로딩 중...</div>
+                <PageSkeleton />
               ) : submissionsList.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />

@@ -1,3 +1,4 @@
+import { PageSkeleton } from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import { useState, useEffect } from 'react';
 import { Bell, Check, CheckCheck, Trash2, FileText, Award, Info } from 'lucide-react';
@@ -105,7 +106,7 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 dark:text-gray-300">로딩 중...</div>
+        <PageSkeleton />
       ) : notifications.length === 0 ? (
         <EmptyState
           type="notification"

@@ -1,4 +1,4 @@
-﻿import { useToast } from '../components/Toast';
+import { useToast } from '../components/Toast';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -221,7 +221,7 @@ function CourseDetailPage({ user }) {
   };
 
   if (loading) {
-    return <div className="text-center py-8">로딩 중...</div>;
+    return <PageSkeleton />;
   }
 
   if (!course) {

@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import { PageSkeleton } from '../components/LoadingSkeleton';
+import { useToast } from '../components/Toast';
 import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Save } from 'lucide-react';
 import { profileAPI } from '../services/api';
@@ -56,7 +57,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="text-center py-12">로딩 중...</div>;
+  if (loading) return <PageSkeleton />;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
