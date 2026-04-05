@@ -161,33 +161,6 @@ function Navbar({ user, onLogout }) {
     if (!profileOpen) loadProfile();
   };
 
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    try {
-      await profileAPI.update(formData);
-      setProfileData({ ...profileData, ...formData });
-      setProfileEditing(false);
-      alert('프로필이 업데이트되었습니다.');
-    } catch (error) {
-      alert('업데이트 실패: ' + (error.response?.data?.error || error.message));
-    }
-  };
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('새 비밀번호가 일치하지 않습니다.');
-      return;
-    }
-    try {
-      await profileAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
-      alert('비밀번호가 변경되었습니다.');
-      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error) {
-      alert('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
-    }
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -280,8 +253,7 @@ function Navbar({ user, onLogout }) {
                       </div>
                     </div>
 
-                    {!profileEditing ? (
-                      <div className="p-4 space-y-2">
+                    <div className="p-4 space-y-2">
                         <button
                           onClick={() => { setProfileOpen(false); navigate('/profile'); }}
                           className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
@@ -310,8 +282,7 @@ function Navbar({ user, onLogout }) {
                           <LogOut className="w-5 h-5" />
                           <span className="font-medium">로그아웃</span>
                         </button>
-                      </div>
-                    ) : null}
+                    </div>
                   </div>
                 )}
               </div>
