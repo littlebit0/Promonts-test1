@@ -11,11 +11,11 @@ function NoticesPage({ user }) {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState(null);
   useEscapeKey(() => {
     if (showModal) { setShowModal(false); return; }
     if (selectedNotice) setSelectedNotice(null);
   }, showModal || !!selectedNotice);
-  const [selectedNotice, setSelectedNotice] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', courseId: '' });
 
   const isProfessor = user.role === 'PROFESSOR';

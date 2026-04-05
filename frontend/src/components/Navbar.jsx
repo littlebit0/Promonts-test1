@@ -25,7 +25,7 @@ const NAV_ITEMS = [
 ];
 
 // 상단 Nav에 표시할 주요 항목 (PC) — 검색/프로필은 아이콘으로 별도 처리
-const MAIN_NAV = ['/', '/todos', '/assignments', '/academic', '/chat', '/calendar'];
+const MAIN_NAV = ['/', '/todos', '/courses', '/assignments', '/academic', '/calendar', '/attendance', '/notices', '/chat', '/notifications', '/stats'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -187,7 +187,7 @@ function Navbar({ user, onLogout }) {
             </Link>
 
             {/* PC 네비게이션 */}
-            <nav className="hidden lg:flex gap-1">
+            <nav className="hidden lg:flex gap-0.5 overflow-x-auto scrollbar-hide flex-1 mx-2">
               {isAdmin ? (
                 <Link to="/admin" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all text-sm ${isActive('/admin') ? 'text-red-600 bg-red-50 dark:bg-red-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'}`}>
                   <Shield className="w-4 h-4" />관리자

@@ -926,17 +926,7 @@ function AcademicPage({ user }) {
             <Bell className="w-4 h-4" />
             학사 공지
           </button>
-          <button
-            onClick={() => setSelectedTab('calendar')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
-              selectedTab === 'calendar'
-                ? 'bg-primary-600 text-white shadow-md'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            학사 일정
-          </button>
+
         </div>
       </div>
 
@@ -946,7 +936,7 @@ function AcademicPage({ user }) {
         {selectedTab === 'schedule' && renderSchedule()}
         {selectedTab === 'info' && renderStudentInfo()}
         {selectedTab === 'notices' && renderNotices()}
-        {selectedTab === 'calendar' && renderCalendar()}
+        
       </div>
     </div>
   );

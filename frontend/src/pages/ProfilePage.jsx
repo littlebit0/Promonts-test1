@@ -9,7 +9,6 @@ export default function ProfilePage() {
   const toast = useToast();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '' });
-  const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,21 +40,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.info('새 비밀번호가 일치하지 않습니다');
-      return;
-    }
-    try {
-      await profileAPI.changePassword(passwordData.oldPassword, passwordData.newPassword);
-      toast.success('비밀번호가 변경되었습니다');
-      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error) {
-      console.error('Failed to change password:', error);
-      toast.error('비밀번호 변경 실패: ' + (error.response?.data?.error || error.message));
-    }
-  };
 
   if (loading) return <PageSkeleton />;
 
@@ -136,53 +120,7 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-
-      {/* 비밀번호 변경 */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Lock className="w-6 h-6" />
-          비밀번호 변경
-        </h2>
-        <form onSubmit={handleChangePassword} className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">현재 비밀번호</label>
-            <input
-              type="password"
-              value={passwordData.oldPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">새 비밀번호</label>
-            <input
-              type="password"
-              value={passwordData.newPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">새 비밀번호 확인</label>
-            <input
-              type="password"
-              value={passwordData.confirmPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-              className="w-full px-4 py-2 border rounded"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
-          >
-            <Lock className="w-5 h-5" />
-            비밀번호 변경
-          </button>
-        </form>
-      </div>
     </div>
   );
 }
+

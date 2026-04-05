@@ -1,4 +1,4 @@
-﻿import { useToast } from '../components/Toast';
+import { useToast } from '../components/Toast';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useState, useEffect } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -10,10 +10,19 @@ const COLOR_OPTIONS = [
   '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'
 ];
 
+const academicCalendar = [
+  { date: '2024-03-25 ~ 03-29', event: '중간고사', type: 'exam' },
+  { date: '2024-04-01 ~ 04-05', event: '수강신청 정정', type: 'registration' },
+  { date: '2024-05-15', event: '개교기념일', type: 'holiday' },
+  { date: '2024-06-17 ~ 06-21', event: '기말고사', type: 'exam' },
+];
+
+
 const defaultForm = { title: '', startTime: '', endTime: '', location: '', description: '', color: '#3b82f6' };
 
 export default function CalendarPage() {
   const [schedules, setSchedules] = useState([]);
+  const [calendarTab, setCalendarTab] = useState('personal');
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('calendar');
@@ -99,6 +108,62 @@ export default function CalendarPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* 탭 전환 */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-2 flex gap-2">
+        <button
+          onClick={() => setCalendarTab('personal')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+            calendarTab === 'personal'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+        >
+          <CalendarIcon className="w-4 h-4" />
+          개인 일정
+        </button>
+        <button
+          onClick={() => setCalendarTab('academic')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+            calendarTab === 'academic'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+        >
+          <List className="w-4 h-4" />
+          학사 일정
+        </button>
+      </div>
+
+      {/* 학사일정 탭 */}
+      {calendarTab === 'academic' && (
+        <div className="space-y-4">
+          {academicCalendar.map((item, index) => (
+            <div
+              key={index}
+              className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 ${
+                item.type === 'exam' ? 'border-red-500' :
+                item.type === 'registration' ? 'border-blue-500' :
+                'border-green-500'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{item.event}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.date}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                  item.type === 'exam' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                  item.type === 'registration' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                  'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                }`}>
+                  {item.type === 'exam' ? '시험' : item.type === 'registration' ? '수강' : '휴일'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2 dark:text-white">
           <CalendarIcon className="w-8 h-8 text-blue-600" />
