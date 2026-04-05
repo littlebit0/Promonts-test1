@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, Book, FileText, CheckSquare, TrendingUp, Award, Clock } from 'lucide-react';
 import { statisticsAPI } from '../services/api';
+import { PageSkeleton } from '../components/LoadingSkeleton';
 
 export default function StatsPage() {
   const [stats, setStats] = useState(null);
