@@ -24,6 +24,7 @@ const AttendancePage = lazy(() => import('./pages/AttendancePage'));
 const ExamsPage = lazy(() => import('./pages/ExamsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const StatsPage = lazy(() => import('./pages/StatsPage'));
+const SecurityPage = lazy(() => import('./pages/SecurityPage'));
 
 // 페이지 로딩 스피너
 function PageLoader() {
@@ -102,6 +103,7 @@ function App() {
                       <Route path="exams" element={<ExamsPage user={user} />} />
                       <Route path="search" element={<SearchPage />} />
                       <Route path="stats" element={<StatsPage />} />
+                      <Route path="security" element={<SecurityPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </>
                   )}

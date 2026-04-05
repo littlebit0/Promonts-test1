@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, CheckSquare, Award, Calendar,
   UserCircle, Search, Shield, LogOut, Menu, X, Bell, BarChart2,
-  MessageSquare, FileText, ClipboardList, QrCode, User, Lock, Save, ChevronRight
+  MessageSquare, FileText, ClipboardList, QrCode, User, Lock, ChevronRight
 } from 'lucide-react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -34,9 +34,6 @@ function Navbar({ user, onLogout }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
-  const [profileEditing, setProfileEditing] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
-  const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [profileLoading, setProfileLoading] = useState(false);
 
   // 모바일 드로어 + 검색 ESC 닫기
@@ -129,14 +126,10 @@ function Navbar({ user, onLogout }) {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
-        setProfileEditing(false);
       }
     };
     const handleEsc = (e) => {
-      if (e.key === 'Escape') {
-        setProfileOpen(false);
-        setProfileEditing(false);
-      }
+      if (e.key === 'Escape') setProfileOpen(false);
     };
     if (profileOpen) {
       document.addEventListener('mousedown', handleClickOutside);
@@ -165,7 +158,6 @@ function Navbar({ user, onLogout }) {
 
   const handleProfileOpen = () => {
     setProfileOpen(!profileOpen);
-    setProfileEditing(false);
     if (!profileOpen) loadProfile();
   };
 
@@ -291,7 +283,7 @@ function Navbar({ user, onLogout }) {
                     {!profileEditing ? (
                       <div className="p-4 space-y-2">
                         <button
-                          onClick={() => setProfileEditing('info')}
+                          onClick={() => { setProfileOpen(false); navigate('/profile'); }}
                           className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
                         >
                           <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
@@ -301,12 +293,12 @@ function Navbar({ user, onLogout }) {
                           <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
                         </button>
                         <button
-                          onClick={() => setProfileEditing('password')}
+                          onClick={() => { setProfileOpen(false); navigate('/security'); }}
                           className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
                         >
                           <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                             <Lock className="w-5 h-5 text-primary-600" />
-                            <span className="font-medium">비밀번호 변경</span>
+                            <span className="font-medium">보안 설정</span>
                           </div>
                           <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
                         </button>
@@ -319,51 +311,7 @@ function Navbar({ user, onLogout }) {
                           <span className="font-medium">로그아웃</span>
                         </button>
                       </div>
-                    ) : profileEditing === 'info' ? (
-                      <form onSubmit={handleUpdateProfile} className="p-4 space-y-3">
-                        <div className="flex items-center gap-2 mb-3">
-                          <button type="button" onClick={() => setProfileEditing(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                            <X className="w-4 h-4" />
-                          </button>
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100">프로필 수정</h3>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">이름</label>
-                          <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">이메일</label>
-                          <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-                        </div>
-                        <button type="submit" className="w-full py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition flex items-center justify-center gap-2">
-                          <Save className="w-4 h-4" />저장
-                        </button>
-                      </form>
-                    ) : (
-                      <form onSubmit={handleChangePassword} className="p-4 space-y-3">
-                        <div className="flex items-center gap-2 mb-3">
-                          <button type="button" onClick={() => setProfileEditing(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                            <X className="w-4 h-4" />
-                          </button>
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100">비밀번호 변경</h3>
-                        </div>
-                        {['oldPassword', 'newPassword', 'confirmPassword'].map((field, i) => (
-                          <div key={field}>
-                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                              {['현재 비밀번호', '새 비밀번호', '새 비밀번호 확인'][i]}
-                            </label>
-                            <input type="password" value={passwordData[field]}
-                              onChange={e => setPasswordData({ ...passwordData, [field]: e.target.value })}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-                          </div>
-                        ))}
-                        <button type="submit" className="w-full py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition flex items-center justify-center gap-2">
-                          <Lock className="w-4 h-4" />변경
-                        </button>
-                      </form>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>
