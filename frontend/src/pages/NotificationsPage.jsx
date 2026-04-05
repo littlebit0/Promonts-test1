@@ -1,3 +1,4 @@
+import EmptyState from '../components/EmptyState';
 import { useState, useEffect } from 'react';
 import { Bell, Check, CheckCheck, Trash2, FileText, Award, Info } from 'lucide-react';
 import { notificationAPI } from '../services/api';
@@ -106,13 +107,11 @@ export default function NotificationsPage() {
       {loading ? (
         <div className="text-center py-12 dark:text-gray-300">로딩 중...</div>
       ) : notifications.length === 0 ? (
-        <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-xl shadow">
-          <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-          <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">알림이 없습니다</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-            {filter === 'unread' ? '읽지 않은 알림이 없습니다' : '아직 알림이 없습니다'}
-          </p>
-        </div>
+        <EmptyState
+          type="notification"
+          desc={filter === 'unread' ? '읽지 않은 알림이 없어요' : '아직 알림이 없어요'}
+          size="lg"
+        />
       ) : (
         <div className="space-y-2">
           {notifications.map((notification) => {

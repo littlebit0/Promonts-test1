@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { todoAPI, courseAPI } from '../services/api';
@@ -143,10 +144,7 @@ function TodosPage() {
       {/* Todos List */}
       <div className="grid gap-4">
         {todos.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <CheckSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">할 일이 없습니다.</p>
-          </div>
+          <EmptyState type="todo" />
         ) : (
           todos.map((todo) => (
             <div

@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { noticeAPI, courseAPI } from '../services/api';
@@ -137,10 +138,7 @@ function NoticesPage({ user }) {
       {/* Notices List */}
       <div className="space-y-4">
         {filteredNotices.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-400 text-lg">공지사항이 없습니다.</p>
-          </div>
+          <EmptyState type="notice" />
         ) : (
           filteredNotices.map((notice) => (
             <div

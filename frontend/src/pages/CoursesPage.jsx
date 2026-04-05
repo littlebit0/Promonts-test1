@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -241,11 +242,11 @@ function CoursesPage({ user }) {
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.length === 0 ? (
-          <div className="col-span-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-12 text-center">
-            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">
-              {viewMode === 'my' ? '수강 중인 강의가 없습니다.' : '등록된 강의가 없습니다.'}
-            </p>
+          <div className="col-span-full">
+            <EmptyState
+              type={viewMode === 'my' ? 'course' : 'generic'}
+              desc={viewMode === 'my' ? '강의를 수강 신청하면 여기에 표시돼요' : '등록된 강의가 없어요'}
+            />
           </div>
         ) : (
           filteredCourses.map((course) => {

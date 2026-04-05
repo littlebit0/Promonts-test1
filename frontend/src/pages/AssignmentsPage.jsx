@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -252,11 +253,10 @@ function AssignmentsPage({ user }) {
       {/* Assignments Grid */}
       <div className="grid gap-6">
         {assignments.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-12 text-center">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">등록된 과제가 없습니다.</p>
-            {isProfessor && <p className="text-gray-400 text-sm mt-2">새 과제를 추가해보세요!</p>}
-          </div>
+          <EmptyState
+            type="assignment"
+            desc={isProfessor ? '첫 번째 과제를 만들어보세요!' : '등록된 과제가 없어요'}
+          />
         ) : (
           assignments.map((assignment) => {
             const dueDate = new Date(assignment.dueDate);

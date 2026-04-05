@@ -1,4 +1,5 @@
-﻿import { useToast } from '../components/Toast';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
 import { useState, useEffect, useRef } from 'react';
 import { CheckCircle, Users, QrCode, RefreshCw, Clock, BookOpen, Scan } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -327,10 +328,7 @@ export default function AttendancePage({ user }) {
           <Users className="w-5 h-5" />출석 이력
         </h2>
         {myAttendances.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow">
-            <CheckCircle className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg">출석 이력이 없습니다</p>
-          </div>
+          <EmptyState type="attendance" size="lg" />
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
             <table className="w-full">
