@@ -91,8 +91,15 @@ function Dashboard({ user }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-xl text-gray-600">로딩 중...</div>
+      <div className="space-y-8 animate-pulse">
+        <div className="h-36 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-28 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+          ))}
+        </div>
+        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+        <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl" />
       </div>
     );
   }
@@ -173,7 +180,19 @@ function Dashboard({ user }) {
         </div>
 
         {courses.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">등록된 강의가 없습니다.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mb-4">
+              <BookOpen className="w-10 h-10 text-primary-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">수강 중인 강의가 없어요</h3>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">강의를 수강 신청하면 여기에 표시돼요</p>
+            <button
+              onClick={() => window.location.href = '/courses'}
+              className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition"
+            >
+              강의 둘러보기
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
@@ -227,7 +246,13 @@ function Dashboard({ user }) {
         </div>
         <div className="space-y-3 max-h-[400px] overflow-y-auto">
           {todos.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">할 일이 없습니다.</p>
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="w-16 h-16 bg-green-50 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-8 h-8 text-green-400" />
+              </div>
+              <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">모든 할 일을 완료했어요! 🎉</h3>
+              <p className="text-sm text-gray-400 dark:text-gray-500">새로운 할 일을 추가해보세요</p>
+            </div>
           ) : (
             todos.slice(0, 10).map((todo) => (
               <div

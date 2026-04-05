@@ -368,13 +368,7 @@ function Navbar({ user, onLogout }) {
                 )}
               </div>
 
-              {/* 로그아웃 (SM 이하) */}
-              <button
-                onClick={onLogout}
-                className="sm:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
+              {/* 로그아웃 (SM 이하) - 프로필 드롭다운에 이미 있어서 모바일 드로어로만 처리 */}
 
               {/* 햄버거 (모바일) */}
               <button
