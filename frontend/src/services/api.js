@@ -149,6 +149,7 @@ export const profileAPI = {
   get: () => api.get('/profile'),
   update: (data) => api.put('/profile', data),
   changePassword: (oldPassword, newPassword) => api.post('/profile/password', null, { params: { oldPassword, newPassword } }),
+  uploadAvatar: (formData) => api.post('/profile/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 // Tag API

@@ -15,6 +15,14 @@ public class User {
     private String password;
     @Column(nullable = false, length = 50)
     private String name;
+    @Column(length = 20)
+    private String studentId;
+    @Column(length = 100)
+    private String department;
+    @Column(length = 20)
+    private String phone;
+    @Column(length = 500)
+    private String avatarUrl;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)
     private Role role;
     @CreationTimestamp @Column(nullable = false, updatable = false)

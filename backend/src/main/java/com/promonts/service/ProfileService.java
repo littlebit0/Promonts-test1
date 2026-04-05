@@ -29,6 +29,18 @@ public class ProfileService {
             }
             user.setEmail(request.getEmail());
         }
+        if (request.getStudentId() != null) {
+            user.setStudentId(request.getStudentId());
+        }
+        if (request.getDepartment() != null) {
+            user.setDepartment(request.getDepartment());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getAvatarUrl() != null) {
+            user.setAvatarUrl(request.getAvatarUrl());
+        }
         
         return userRepository.save(user);
     }

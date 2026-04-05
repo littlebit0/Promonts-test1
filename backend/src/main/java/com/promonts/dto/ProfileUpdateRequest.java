@@ -11,4 +11,7 @@ public class ProfileUpdateRequest {
     private String bio;
     private String phone;
     private String avatar;
+    private String studentId;
+    private String department;
+    private String avatarUrl;
 }
