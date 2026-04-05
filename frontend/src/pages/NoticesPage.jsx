@@ -143,7 +143,8 @@ function NoticesPage({ user }) {
           filteredNotices.map((notice) => (
             <div
               key={notice.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-primary-500"
+              onClick={() => handleViewDetail(notice)}
+              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-primary-500 cursor-pointer"
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
@@ -160,7 +161,7 @@ function NoticesPage({ user }) {
                   </div>
                 </div>
                 {isProfessor && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => handleEdit(notice)}
                       className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
@@ -176,13 +177,7 @@ function NoticesPage({ user }) {
                   </div>
                 )}
               </div>
-              <p className="text-gray-600 line-clamp-2 mb-3">{notice.content}</p>
-              <button
-                onClick={() => handleViewDetail(notice)}
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
-              >
-                자세히 보기 →
-              </button>
+              <p className="text-gray-600 line-clamp-2">{notice.content}</p>
             </div>
           ))
         )}
