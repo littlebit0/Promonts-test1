@@ -14,6 +14,12 @@ public class AssignmentController {
     private final AssignmentService assignmentService;
 
     // 강의별 과제 CRUD
+    // 전체 과제 목록 조회 (GET /api/assignments)
+    @GetMapping("/api/assignments")
+    public ResponseEntity<List<AssignmentListResponse>> getAllAssignments(Authentication authentication) {
+        return ResponseEntity.ok(assignmentService.getAllAssignments(authentication.getName()));
+    }
+
     @PostMapping("/api/courses/{courseId}/assignments")
     public ResponseEntity<AssignmentResponse> createAssignment(
             @PathVariable Long courseId,

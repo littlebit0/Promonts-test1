@@ -18,6 +18,7 @@ public class AssignmentService {
     private final CourseRepository courseRepository;
     private final CourseEnrollmentRepository enrollmentRepository;
     private final TodoRepository todoRepository;
+    private final UserRepository userRepository;
     
     @Transactional
     public AssignmentResponse createAssignment(Long courseId, AssignmentRequest request, String professorEmail) {
@@ -62,6 +63,23 @@ public class AssignmentService {
         return AssignmentResponse.from(assignment);
     }
     @Transactional(readOnly = true)
+    public List<AssignmentListResponse> getAllAssignments(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (user.getRole() == User.Role.PROFESSOR || user.getRole() == User.Role.ADMIN) {
+            return assignmentRepository.findAll().stream()
+                    .sorted((a, b) -> b.getDueDate().compareTo(a.getDueDate()))
+                    .map(AssignmentListResponse::from)
+                    .collect(Collectors.toList());
+        }
+        List<CourseEnrollment> enrollments = enrollmentRepository.findByUserId(user.getId());
+        return enrollments.stream()
+                .flatMap(e -> assignmentRepository.findByCourse(e.getCourse()).stream())
+                .sorted((a, b) -> a.getDueDate().compareTo(b.getDueDate()))
+                .map(AssignmentListResponse::from)
+                .collect(Collectors.toList());
+    }
+        @Transactional(readOnly = true)
     public List<AssignmentListResponse> getAssignmentsByCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다: " + courseId));
