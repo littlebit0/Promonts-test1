@@ -1,4 +1,3 @@
-import React from 'react';
 
 // 카드 스켈레톤
 export const CardSkeleton = ({ count = 3 }) => {

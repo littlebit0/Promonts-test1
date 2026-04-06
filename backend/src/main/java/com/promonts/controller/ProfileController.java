@@ -2,6 +2,7 @@ package com.promonts.controller;
 
 import com.promonts.config.JwtUtil;
 import com.promonts.domain.user.User;
+import com.promonts.dto.ProfileResponse;
 import com.promonts.dto.ProfileUpdateRequest;
 import com.promonts.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,11 @@ public class ProfileController {
     private final JwtUtil jwtUtil;
     
     @GetMapping
-    public ResponseEntity<User> getProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ProfileResponse> getProfile(@RequestHeader("Authorization") String token) {
         String jwt = token.substring(7);
         Long userId = jwtUtil.extractUserId(jwt);
         User user = profileService.getProfile(userId);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(ProfileResponse.from(user));
     }
     
     @PutMapping
@@ -38,7 +39,7 @@ public class ProfileController {
             String jwt = token.substring(7);
             Long userId = jwtUtil.extractUserId(jwt);
             User updated = profileService.updateProfile(userId, request);
-            return ResponseEntity.ok(updated);
+            return ResponseEntity.ok(ProfileResponse.from(updated));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
