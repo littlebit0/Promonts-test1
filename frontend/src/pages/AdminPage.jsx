@@ -1,4 +1,4 @@
-﻿import { useToast } from '../components/Toast';
+import { useToast } from '../components/Toast';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Shield, Users, BookOpen, FileText, AlertCircle, Trash2, Plus, X, UserPlus } from 'lucide-react';
@@ -24,8 +24,8 @@ function AdminPage({ user }) {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const [usersRes, coursesRes] = await Promise.all([
-        axios.get('http://localhost:8080/api/users', config).catch(() => ({ data: [] })),
-        axios.get('http://localhost:8080/api/courses', config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/users`, config).catch(() => ({ data: [] })),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/courses`, config),
       ]);
 
       setUsers(usersRes.data || []);
@@ -50,7 +50,7 @@ function AdminPage({ user }) {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/users/${userId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.info('삭제되었습니다.');
@@ -65,7 +65,7 @@ function AdminPage({ user }) {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8080/api/auth/register', newUser, {
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/auth/register`, newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.info('사용자가 생성되었습니다.');
@@ -82,7 +82,7 @@ function AdminPage({ user }) {
     if (!window.confirm('정말 삭제하시겠습니까? 강의와 관련된 모든 데이터가 삭제됩니다.')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/courses/${courseId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.info('삭제되었습니다.');

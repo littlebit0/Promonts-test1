@@ -307,7 +307,7 @@ function CourseDetailPage({ user }) {
                   const fileInfo = getFileIcon(material.originalFileName || material.title);
                   const FileIcon = fileInfo.icon;
                   const canPreview = isImage(material.originalFileName) || isPdf(material.originalFileName);
-                  const previewUrl = `http://localhost:8080/api/materials/${material.id}/download`;
+                  const previewUrl = `${API_BASE}/materials/${material.id}/download`;
                   return (
                     <div
                       key={material.id}
