@@ -5,7 +5,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 # SPA 라우팅 - 모든 경로를 index.html로
 [[redirects]]

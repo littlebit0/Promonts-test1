@@ -24,6 +24,7 @@ repositories {
 dependencies {
     // Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
     // JPA & H2 (개발) + PostgreSQL (프로덕션)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

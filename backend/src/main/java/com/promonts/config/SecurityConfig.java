@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**", "/h2-console/**",
                                  "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
-                                 "/ws/**", "/uploads/**").permitAll()
+                                 "/ws/**", "/uploads/**", "/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
