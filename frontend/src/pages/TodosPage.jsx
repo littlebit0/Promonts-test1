@@ -1,11 +1,13 @@
 import EmptyState from '../components/EmptyState';
 import { useToast } from '../components/Toast';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useEscapeKey } from '../hooks/useEscapeKey';
-import { todoAPI, courseAPI } from '../services/api';
+import { todoAPI, courseAPI, assignmentAPI } from '../services/api';
 import { CheckSquare, Plus, X, Calendar, AlertCircle, BookOpen, Filter } from 'lucide-react';
 
 function TodosPage() {
+  const navigate = useNavigate();
   const [todos, setTodos] = useState([]);
   const toast = useToast();
   const [courses, setCourses] = useState([]);
@@ -54,6 +56,32 @@ function TodosPage() {
     } catch (error) {
       console.error('Failed to save todo:', error);
       toast.success('할 일 저장에 실패했습니다.');
+    }
+  };
+
+  // 과제 Todo 클릭 시 강의 페이지로 이동 (Dashboard와 동일한 동작)
+  const handleAssignmentClick = async (assignmentId) => {
+    try {
+      const response = await assignmentAPI.getById(assignmentId);
+      const assignment = response.data;
+      const courseId = assignment.course?.id;
+      if (courseId) {
+        navigate(`/course/${courseId}`, {
+          state: { openAssignmentId: assignmentId, assignmentData: assignment }
+        });
+      }
+    } catch (error) {
+      toast.error('과제 정보를 불러올 수 없습니다.');
+    }
+  };
+
+  const handleTodoClick = (todo) => {
+    if (todo.title?.startsWith('[과제]') || todo.assignmentId) {
+      if (todo.assignmentId) {
+        handleAssignmentClick(todo.assignmentId);
+      } else if (todo.courseId) {
+        navigate(`/course/${todo.courseId}`);
+      }
     }
   };
 
@@ -149,15 +177,16 @@ function TodosPage() {
           todos.map((todo) => (
             <div
               key={todo.id}
+              onClick={() => handleTodoClick(todo)}
               className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 ${
                 todo.completed ? 'border-green-500 bg-gray-50 opacity-70' : 'border-primary-500'
-              }`}
+              } ${(todo.title?.startsWith('[과제]') || todo.assignmentId) ? 'cursor-pointer' : ''}`}
             >
               <div className="flex items-start gap-4">
                 <input
                   type="checkbox"
                   checked={todo.completed}
-                  onChange={() => handleToggle(todo.id)}
+                  onChange={(e) => { e.stopPropagation(); handleToggle(todo.id); }}
                   disabled={todo.title && todo.title.startsWith('[과제]')}
                   className={`mt-1 w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 ${
                     todo.title && todo.title.startsWith('[과제]') 
@@ -214,7 +243,7 @@ function TodosPage() {
                     </span>
                   )}
                   <button
-                    onClick={() => handleDelete(todo.id)}
+                    onClick={(e) => { e.stopPropagation(); handleDelete(todo.id); }}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
                   >
                     <X className="w-5 h-5" />
