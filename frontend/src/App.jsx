@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+﻿import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Layout from './components/Layout';
@@ -7,7 +7,7 @@ import { ToastProvider } from './components/Toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import './index.css';
 
-// 코드 스플리팅: 페이지별 lazy import
+// ì½”ë“œ ìŠ¤í”Œë¦¬íŒ…: íŽ˜ì´ì§€ë³„ lazy import
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const CoursesPage = lazy(() => import('./pages/CoursesPage'));
 const CourseDetailPage = lazy(() => import('./pages/CourseDetailPage'));
@@ -25,14 +25,18 @@ const ExamsPage = lazy(() => import('./pages/ExamsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const StatsPage = lazy(() => import('./pages/StatsPage'));
 const SecurityPage = lazy(() => import('./pages/SecurityPage'));
+const MailPage = lazy(() => import('./pages/MailPage'));
+const OAuth2CallbackPage = lazy(() => import('./pages/OAuth2CallbackPage'));
+const OAuth2LinkPage = lazy(() => import('./pages/OAuth2LinkPage'));
+const OAuth2LinkedPage = lazy(() => import('./pages/OAuth2LinkedPage'));
 
-// 페이지 로딩 스피너
+// íŽ˜ì´ì§€ ë¡œë”© ìŠ¤í”¼ë„ˆ
 function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-400 dark:text-gray-500">로딩 중...</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500">ë¡œë”© ì¤‘...</p>
       </div>
     </div>
   );
@@ -63,7 +67,18 @@ function App() {
     return (
       <ThemeProvider>
         <ToastProvider>
-          <Login onLogin={handleLogin} />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/oauth2/callback" element={<OAuth2CallbackPage onLogin={handleLogin} />} />
+                <Route path="/oauth2/link" element={<OAuth2LinkPage onLogin={handleLogin} />} />
+                <Route path="/oauth2/linked" element={<OAuth2LinkedPage />} />
+                <Route path="/oauth2/link" element={<OAuth2LinkPage onLogin={handleLogin} />} />
+                <Route path="/oauth2/linked" element={<OAuth2LinkedPage />} />
+                <Route path="*" element={<Login onLogin={handleLogin} />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
         </ToastProvider>
       </ThemeProvider>
     );
@@ -104,7 +119,7 @@ function App() {
                       <Route path="search" element={<SearchPage />} />
                       <Route path="stats" element={<StatsPage />} />
                       <Route path="security" element={<SecurityPage />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
+                      <Route path="mail" element={<MailPage />} />                      <Route path="*" element={<Navigate to="/" replace />} />
                     </>
                   )}
                 </Route>
@@ -118,3 +133,4 @@ function App() {
 }
 
 export default App;
+

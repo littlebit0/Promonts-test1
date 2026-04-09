@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor (JWT 토큰 추가)
+// Request interceptor (JWT í† í° ì¶”ê°€)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,14 +21,18 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor (에러 처리)
+// Response interceptor (ì—ëŸ¬ ì²˜ë¦¬)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // 메일 API는 MS 토큰 미연결 상태일 수 있으므로 로그아웃 제외
+      const url = error.config?.url || '';
+      if (!url.includes('/mail/')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -250,4 +254,23 @@ export const chatAPI = {
   }),
 };
 
+
+export const mailAPI = {
+  status: () => api.get('/mail/status').then(r => r.data),
+  getInbox: (top = 20, skipToken = null) => api.get('/mail/inbox', { params: { top, skipToken } }).then(r => r.data),
+  getSent: (top = 20) => api.get('/mail/sent', { params: { top } }).then(r => r.data),
+  getMessage: (id) => api.get(`/mail/${id}`).then(r => r.data),
+  sendMail: ({ to, subject, body, contentType = 'text' }) =>
+    api.post('/mail/send', { to, subject, body, contentType }).then(r => r.data),
+  deleteMail: (id) => api.delete(`/mail/${id}`).then(r => r.data),
+  markAsRead: (id) => api.patch(`/mail/${id}/read`).then(r => r.data),
+};
+
+export const msAPI = {
+  status: () => api.get('/ms/status'),
+  link: (msEmail, msName, msToken) => api.post('/ms/link', { msEmail, msName, msToken }),
+  unlink: () => api.delete('/ms/unlink'),
+};
 export default api;
+
+

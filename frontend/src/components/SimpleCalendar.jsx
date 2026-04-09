@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarDays, CalendarRange } from 'lucide-react';
 
-const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
+const SimpleCalendar = ({ schedules, academicSchedules = [], onDateClick, onScheduleClick }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // 'month' | 'week'
 
@@ -12,11 +12,20 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
   // ─── 헬퍼 ───────────────────────────────────────────────────────────────
   const getSchedulesForDate = (y, m, d) => {
     const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    return schedules.filter((s) => {
+    const personal = schedules.filter((s) => {
       if (!s.startTime) return false;
-      const scheduleDate = new Date(s.startTime).toLocaleDateString('sv-SE'); // YYYY-MM-DD
-      return scheduleDate === dateStr;
+      return new Date(s.startTime).toLocaleDateString('sv-SE') === dateStr;
     });
+    const academic = academicSchedules.filter((s) => {
+      if (!s.date) return false;
+      // 범위 일정: date가 "YYYY-MM-DD ~ YYYY-MM-DD" 형태
+      if (s.date.includes('~')) {
+        const [start, end] = s.date.split('~').map(d => d.trim());
+        return dateStr >= start && dateStr <= end;
+      }
+      return s.date === dateStr;
+    });
+    return { personal, academic };
   };
 
   const isToday = (y, m, d) =>
@@ -32,7 +41,6 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
 
     const cells = [];
 
-    // 이전 달 날짜 (회색)
     for (let i = firstDay - 1; i >= 0; i--) {
       const d = prevLastDay - i;
       const prevMonth = month === 0 ? 11 : month - 1;
@@ -40,34 +48,25 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
       cells.push(
         <DayCell
           key={`prev-${d}`}
-          day={d}
-          year={prevYear}
-          month={prevMonth}
-          dimmed
-          schedules={getSchedulesForDate(prevYear, prevMonth, d)}
-          onDateClick={onDateClick}
-          onScheduleClick={onScheduleClick}
+          day={d} year={prevYear} month={prevMonth} dimmed
+          {...getSchedulesForDate(prevYear, prevMonth, d)}
+          onDateClick={onDateClick} onScheduleClick={onScheduleClick}
         />
       );
     }
 
-    // 이번 달 날짜
     for (let d = 1; d <= lastDay; d++) {
       cells.push(
         <DayCell
           key={`cur-${d}`}
-          day={d}
-          year={year}
-          month={month}
+          day={d} year={year} month={month}
           today={isToday(year, month, d)}
-          schedules={getSchedulesForDate(year, month, d)}
-          onDateClick={onDateClick}
-          onScheduleClick={onScheduleClick}
+          {...getSchedulesForDate(year, month, d)}
+          onDateClick={onDateClick} onScheduleClick={onScheduleClick}
         />
       );
     }
 
-    // 다음 달 날짜 (남은 칸 채우기)
     const totalCells = cells.length;
     const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
     const nextMonth = month === 11 ? 0 : month + 1;
@@ -76,13 +75,9 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
       cells.push(
         <DayCell
           key={`next-${d}`}
-          day={d}
-          year={nextYear}
-          month={nextMonth}
-          dimmed
-          schedules={getSchedulesForDate(nextYear, nextMonth, d)}
-          onDateClick={onDateClick}
-          onScheduleClick={onScheduleClick}
+          day={d} year={nextYear} month={nextMonth} dimmed
+          {...getSchedulesForDate(nextYear, nextMonth, d)}
+          onDateClick={onDateClick} onScheduleClick={onScheduleClick}
         />
       );
     }
@@ -106,13 +101,10 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
         {days.map((d) => (
           <DayCell
             key={d.toISOString()}
-            day={d.getDate()}
-            year={d.getFullYear()}
-            month={d.getMonth()}
+            day={d.getDate()} year={d.getFullYear()} month={d.getMonth()}
             today={isToday(d.getFullYear(), d.getMonth(), d.getDate())}
-            schedules={getSchedulesForDate(d.getFullYear(), d.getMonth(), d.getDate())}
-            onDateClick={onDateClick}
-            onScheduleClick={onScheduleClick}
+            {...getSchedulesForDate(d.getFullYear(), d.getMonth(), d.getDate())}
+            onDateClick={onDateClick} onScheduleClick={onScheduleClick}
             tall
           />
         ))}
@@ -122,29 +114,18 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
 
   // ─── 네비게이션 ─────────────────────────────────────────────────────────
   const goPrev = () => {
-    if (viewMode === 'month') {
-      setCurrentDate(new Date(year, month - 1, 1));
-    } else {
-      const d = new Date(currentDate);
-      d.setDate(d.getDate() - 7);
-      setCurrentDate(d);
-    }
+    if (viewMode === 'month') setCurrentDate(new Date(year, month - 1, 1));
+    else { const d = new Date(currentDate); d.setDate(d.getDate() - 7); setCurrentDate(d); }
   };
 
   const goNext = () => {
-    if (viewMode === 'month') {
-      setCurrentDate(new Date(year, month + 1, 1));
-    } else {
-      const d = new Date(currentDate);
-      d.setDate(d.getDate() + 7);
-      setCurrentDate(d);
-    }
+    if (viewMode === 'month') setCurrentDate(new Date(year, month + 1, 1));
+    else { const d = new Date(currentDate); d.setDate(d.getDate() + 7); setCurrentDate(d); }
   };
 
   const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const dayNames = ['일','월','화','수','목','금','토'];
 
-  // 주 뷰 타이틀
   const getWeekTitle = () => {
     const startOfWeek = new Date(currentDate);
     startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
@@ -162,9 +143,7 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
             <ChevronLeft className="w-5 h-5 dark:text-gray-300" />
           </button>
           <h2 className="text-xl font-bold dark:text-white min-w-[160px] text-center">
-            {viewMode === 'month'
-              ? `${year}년 ${monthNames[month]}`
-              : `${year}년 ${getWeekTitle()}`}
+            {viewMode === 'month' ? `${year}년 ${monthNames[month]}` : `${year}년 ${getWeekTitle()}`}
           </h2>
           <button onClick={goNext} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
             <ChevronRight className="w-5 h-5 dark:text-gray-300" />
@@ -209,11 +188,7 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
           <div
             key={d}
             className={`text-center py-3 font-medium text-sm ${
-              idx === 0
-                ? 'text-red-500'
-                : idx === 6
-                ? 'text-blue-500'
-                : 'text-gray-600 dark:text-gray-400'
+              idx === 0 ? 'text-red-500' : idx === 6 ? 'text-blue-500' : 'text-gray-600 dark:text-gray-400'
             }`}
           >
             {d}
@@ -221,15 +196,32 @@ const SimpleCalendar = ({ schedules, onDateClick, onScheduleClick }) => {
         ))}
       </div>
 
-      {/* 날짜 그리드 */}
       {viewMode === 'month' ? renderMonthView() : renderWeekView()}
     </div>
   );
 };
 
 // ─── DayCell 컴포넌트 ────────────────────────────────────────────────────────
-const DayCell = ({ day, year, month, today, dimmed, schedules = [], onDateClick, onScheduleClick, tall }) => {
+const ACADEMIC_COLORS = {
+  exam: '#ef4444',
+  registration: '#3b82f6',
+  holiday: '#10b981',
+  default: '#8b5cf6',
+};
+
+const DayCell = ({ day, year, month, today, dimmed, personal = [], academic = [], onDateClick, onScheduleClick, tall }) => {
   const dayOfWeek = new Date(year, month, day).getDay();
+  const allSchedules = [
+    ...personal,
+    ...academic.map(a => ({
+      ...a,
+      _isAcademic: true,
+      color: ACADEMIC_COLORS[a.type] || ACADEMIC_COLORS.default,
+      title: a.event,
+      startTime: null,
+    }))
+  ];
+  const maxVisible = tall ? 6 : 3;
 
   return (
     <div
@@ -239,7 +231,6 @@ const DayCell = ({ day, year, month, today, dimmed, schedules = [], onDateClick,
         ${dimmed ? 'opacity-40' : ''}
       `}
     >
-      {/* 날짜 숫자 */}
       <div className="flex justify-between items-start mb-1">
         <span
           className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition
@@ -251,21 +242,20 @@ const DayCell = ({ day, year, month, today, dimmed, schedules = [], onDateClick,
         >
           {day}
         </span>
-        {schedules.length > 0 && (
-          <span className="text-xs text-gray-400 dark:text-gray-500 pr-0.5">{schedules.length}</span>
+        {allSchedules.length > 0 && (
+          <span className="text-xs text-gray-400 dark:text-gray-500 pr-0.5">{allSchedules.length}</span>
         )}
       </div>
 
-      {/* 일정 목록 */}
       <div className="space-y-0.5 overflow-hidden">
-        {schedules.slice(0, tall ? 6 : 3).map((s, idx) => (
+        {allSchedules.slice(0, maxVisible).map((s, idx) => (
           <div
             key={idx}
             onClick={(e) => {
               e.stopPropagation();
-              onScheduleClick && onScheduleClick(s);
+              if (!s._isAcademic) onScheduleClick && onScheduleClick(s);
             }}
-            className="text-xs px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition"
+            className={`text-xs px-1.5 py-0.5 rounded truncate transition ${!s._isAcademic ? 'cursor-pointer hover:opacity-80' : 'cursor-default opacity-90'}`}
             style={{ backgroundColor: s.color || '#3b82f6', color: 'white' }}
             title={s.title}
           >
@@ -274,12 +264,13 @@ const DayCell = ({ day, year, month, today, dimmed, schedules = [], onDateClick,
                 {new Date(s.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </span>
             )}
+            {s._isAcademic && <span className="opacity-70 mr-1">[학사]</span>}
             {s.title}
           </div>
         ))}
-        {schedules.length > (tall ? 6 : 3) && (
+        {allSchedules.length > maxVisible && (
           <div className="text-xs text-gray-400 dark:text-gray-500 px-1">
-            +{schedules.length - (tall ? 6 : 3)}개 더
+            +{allSchedules.length - maxVisible}개 더
           </div>
         )}
       </div>

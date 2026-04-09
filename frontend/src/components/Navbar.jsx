@@ -1,9 +1,9 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, CheckSquare, Award, Calendar,
   UserCircle, Search, Shield, LogOut, Menu, X, Bell, BarChart2,
-  MessageSquare, FileText, ClipboardList, QrCode, User, Lock, ChevronRight
+  MessageSquare, Mail, FileText, ClipboardList, QrCode, User, Lock, ChevronRight
 } from 'lucide-react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -19,13 +19,14 @@ const NAV_ITEMS = [
   { to: '/calendar', icon: Calendar, label: '일정' },
   { to: '/attendance', icon: QrCode, label: '출석' },
   { to: '/notices', icon: ClipboardList, label: '공지' },
+  { to: '/mail', icon: Mail, label: '메일' },
   { to: '/chat', icon: MessageSquare, label: '채팅' },
   { to: '/notifications', icon: Bell, label: '알림' },
   { to: '/stats', icon: BarChart2, label: '통계' },
 ];
 
-// 상단 Nav에 표시할 주요 항목 (PC) — 검색/프로필은 아이콘으로 별도 처리
-const MAIN_NAV = ['/', '/todos', '/courses', '/assignments', '/academic', '/calendar', '/attendance', '/notices', '/chat', '/notifications', '/stats'];
+// PC Nav에 표시할 항목 순서 (메일 포함)
+const MAIN_NAV = ['/', '/todos', '/courses', '/assignments', '/academic', '/calendar', '/attendance', '/mail', '/chat', '/notifications', '/stats'];
 
 function Navbar({ user, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -36,7 +37,7 @@ function Navbar({ user, onLogout }) {
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // 모바일 드로어 + 검색 ESC 닫기
+  // 키보드 이벤트 + 닫기 ESC 처리
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
@@ -59,7 +60,7 @@ function Navbar({ user, onLogout }) {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
   const SERVER_BASE = API_BASE.replace('/api', '');
 
-  // 알림 카운트 (초기 로드)
+  // 알림 카운트 (폴링 방식)
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -74,12 +75,12 @@ function Navbar({ user, onLogout }) {
     } catch (e) {}
   };
 
-  // WebSocket 알림 구독
+  // WebSocket 알림 연결
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token || !user?.id) return;
 
-    // userId 파싱
+    // userId 확인
     let userId = user.id;
     try {
       if (!userId) {
@@ -94,7 +95,7 @@ function Navbar({ user, onLogout }) {
       webSocketFactory: () => socket,
       onConnect: () => {
         client.subscribe(`/topic/notifications/${userId}`, () => {
-          // 새 알림 → 카운트 +1
+          // 새 알림  수신 시 +1
           setUnreadCount(prev => prev + 1);
         });
       },
@@ -115,13 +116,13 @@ function Navbar({ user, onLogout }) {
     if (location.pathname === '/notifications') setUnreadCount(0);
   }, [location.pathname]);
 
-  // 검색창 열릴 때 포커스
+  // 검색 바 열릴 때 포커스
   useEffect(() => {
     if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50);
     else setSearchQuery('');
   }, [searchOpen]);
 
-  // 프로필 모달 외부 클릭 닫기
+  // 프로필 드롭다운 외부 클릭 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -148,7 +149,6 @@ function Navbar({ user, onLogout }) {
     try {
       const res = await profileAPI.get();
       setProfileData(res.data);
-      setFormData({ name: res.data.name, email: res.data.email });
     } catch (e) {
       console.error(e);
     } finally {
@@ -206,7 +206,7 @@ function Navbar({ user, onLogout }) {
               )}
             </nav>
 
-            {/* 우측 영역 */}
+            {/* 우측 액션 */}
             <div className="flex items-center gap-1 sm:gap-2">
               <ThemeToggle />
 
@@ -221,7 +221,7 @@ function Navbar({ user, onLogout }) {
                 </button>
               )}
 
-              {/* 프로필 버튼 (이름 클릭) */}
+              {/* 프로필 버튼 (PC 전용) */}
               <div className="relative hidden sm:block" ref={profileRef}>
                 <button
                   onClick={handleProfileOpen}
@@ -254,42 +254,40 @@ function Navbar({ user, onLogout }) {
                     </div>
 
                     <div className="p-4 space-y-2">
-                        <button
-                          onClick={() => { setProfileOpen(false); navigate('/profile'); }}
-                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
-                        >
-                          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                            <User className="w-5 h-5 text-primary-600" />
-                            <span className="font-medium">프로필 수정</span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                        </button>
-                        <button
-                          onClick={() => { setProfileOpen(false); navigate('/security'); }}
-                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
-                        >
-                          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                            <Lock className="w-5 h-5 text-primary-600" />
-                            <span className="font-medium">보안 설정</span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                        </button>
-                        <hr className="border-gray-200 dark:border-gray-700 my-1" />
-                        <button
-                          onClick={() => { setProfileOpen(false); onLogout(); }}
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition"
-                        >
-                          <LogOut className="w-5 h-5" />
-                          <span className="font-medium">로그아웃</span>
-                        </button>
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate('/profile'); }}
+                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
+                      >
+                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                          <User className="w-5 h-5 text-primary-600" />
+                          <span className="font-medium">프로필 설정</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                      </button>
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate('/security'); }}
+                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition group"
+                      >
+                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                          <Lock className="w-5 h-5 text-primary-600" />
+                          <span className="font-medium">보안 설정</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                      </button>
+                      <hr className="border-gray-200 dark:border-gray-700 my-1" />
+                      <button
+                        onClick={() => { setProfileOpen(false); onLogout(); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span className="font-medium">로그아웃</span>
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* 로그아웃 (SM 이하) - 프로필 드롭다운에 이미 있어서 모바일 드로어로만 처리 */}
-
-              {/* 햄버거 (모바일) */}
+              {/* 햄버거 메뉴 (모바일) */}
               <button
                 onClick={() => setMenuOpen(true)}
                 className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
@@ -300,7 +298,7 @@ function Navbar({ user, onLogout }) {
           </div>
         </div>
 
-        {/* 인라인 검색 박스 */}
+        {/* 인라인 검색 바 */}
         {searchOpen && !isAdmin && (
           <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 sm:px-6 lg:px-8 py-3">
             <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
@@ -311,7 +309,7 @@ function Navbar({ user, onLogout }) {
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="공지사항, 과제, 강의 검색..."
+                  placeholder="강의명, 과제, 공지 검색..."
                   className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-700 dark:text-white text-sm"
                 />
               </div>
@@ -328,10 +326,10 @@ function Navbar({ user, onLogout }) {
         )}
       </header>
 
-      {/* 모바일 드로어 오버레이 */}
+      {/* 모바일 메뉴 오버레이 배경 */}
       {menuOpen && <div className="fixed inset-0 bg-black/75 z-50 lg:hidden" onClick={() => setMenuOpen(false)} />}
 
-      {/* 모바일 드로어 */}
+      {/* 사이드 메뉴 */}
       <div className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
           <div>
@@ -375,6 +373,7 @@ function Navbar({ user, onLogout }) {
             {[
               { to: '/', icon: LayoutDashboard, label: '홈' },
               { to: '/assignments', icon: FileText, label: '과제' },
+              { to: '/mail', icon: Mail, label: '메일' },
               { to: '/chat', icon: MessageSquare, label: '채팅' },
               { to: '/notifications', icon: Bell, label: '알림', badge: unreadCount },
               { to: '/todos', icon: CheckSquare, label: 'Todo' },

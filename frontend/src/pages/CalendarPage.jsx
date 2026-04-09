@@ -11,28 +11,44 @@ const COLOR_OPTIONS = [
 ];
 
 const academicCalendar = [
-  { date: '2024-03-25 ~ 03-29', event: '중간고사', type: 'exam' },
-  { date: '2024-04-01 ~ 04-05', event: '수강신청 정정', type: 'registration' },
+  { date: '2024-03-25', event: '중간고사 시작', type: 'exam' },
+  { date: '2024-03-26', event: '중간고사', type: 'exam' },
+  { date: '2024-03-27', event: '중간고사', type: 'exam' },
+  { date: '2024-03-28', event: '중간고사', type: 'exam' },
+  { date: '2024-03-29', event: '중간고사 종료', type: 'exam' },
+  { date: '2024-04-01', event: '수강신청 정정', type: 'registration' },
   { date: '2024-05-15', event: '개교기념일', type: 'holiday' },
-  { date: '2024-06-17 ~ 06-21', event: '기말고사', type: 'exam' },
+  { date: '2024-06-17', event: '기말고사 시작', type: 'exam' },
+  { date: '2024-06-18', event: '기말고사', type: 'exam' },
+  { date: '2024-06-19', event: '기말고사', type: 'exam' },
+  { date: '2024-06-20', event: '기말고사', type: 'exam' },
+  { date: '2024-06-21', event: '기말고사 종료', type: 'exam' },
 ];
 
+const ACADEMIC_TYPE_LABELS = { exam: '시험', registration: '수강', holiday: '휴일' };
+const ACADEMIC_TYPE_COLORS = { exam: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300', registration: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300', holiday: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' };
+const ACADEMIC_BORDER_COLORS = { exam: 'border-red-500', registration: 'border-blue-500', holiday: 'border-green-500' };
 
 const defaultForm = { title: '', startTime: '', endTime: '', location: '', description: '', color: '#3b82f6' };
 
 export default function CalendarPage() {
   const [schedules, setSchedules] = useState([]);
-  const [calendarTab, setCalendarTab] = useState('personal');
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('calendar');
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // 필터 상태
+  const [showPersonal, setShowPersonal] = useState(true);
+  const [showAcademic, setShowAcademic] = useState(true);
+
   useEscapeKey(() => {
     if (showDetailModal) { setShowDetailModal(false); return; }
     if (showAddModal) setShowAddModal(false);
   }, showDetailModal || showAddModal);
+
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
 
@@ -60,14 +76,8 @@ export default function CalendarPage() {
     setShowAddModal(true);
   };
 
-  const handleDateClick = (date) => {
-    openAddModal(date);
-  };
-
-  const handleScheduleClick = (schedule) => {
-    setSelectedSchedule(schedule);
-    setShowDetailModal(true);
-  };
+  const handleDateClick = (date) => { openAddModal(date); };
+  const handleScheduleClick = (schedule) => { setSelectedSchedule(schedule); setShowDetailModal(true); };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -106,70 +116,47 @@ export default function CalendarPage() {
 
   if (loading) return <div className="max-w-6xl mx-auto p-6"><PageSkeleton /></div>;
 
+  const filteredSchedules = showPersonal ? schedules : [];
+  const filteredAcademic = showAcademic ? academicCalendar : [];
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* 탭 전환 */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-2 flex gap-2">
-        <button
-          onClick={() => setCalendarTab('personal')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-            calendarTab === 'personal'
-              ? 'bg-primary-600 text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
-        >
-          <CalendarIcon className="w-4 h-4" />
-          개인 일정
-        </button>
-        <button
-          onClick={() => setCalendarTab('academic')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-            calendarTab === 'academic'
-              ? 'bg-primary-600 text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
-        >
-          <List className="w-4 h-4" />
-          학사 일정
-        </button>
-      </div>
-
-      {/* 학사일정 탭 */}
-      {calendarTab === 'academic' && (
-        <div className="space-y-4">
-          {academicCalendar.map((item, index) => (
-            <div
-              key={index}
-              className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-l-4 ${
-                item.type === 'exam' ? 'border-red-500' :
-                item.type === 'registration' ? 'border-blue-500' :
-                'border-green-500'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{item.event}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.date}</p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                  item.type === 'exam' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
-                  item.type === 'registration' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
-                  'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                }`}>
-                  {item.type === 'exam' ? '시험' : item.type === 'registration' ? '수강' : '휴일'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
+      {/* 헤더 */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2 dark:text-white">
           <CalendarIcon className="w-8 h-8 text-blue-600" />
           일정
         </h1>
         <div className="flex items-center gap-4">
+          {/* 필터 체크박스 */}
+          <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-md">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showPersonal}
+                onChange={e => setShowPersonal(e.target.checked)}
+                className="w-4 h-4 rounded accent-blue-600"
+              />
+              <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
+                개인 일정
+              </span>
+            </label>
+            <div className="w-px h-4 bg-gray-200 dark:bg-gray-600" />
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showAcademic}
+                onChange={e => setShowAcademic(e.target.checked)}
+                className="w-4 h-4 rounded accent-purple-600"
+              />
+              <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
+                학사 일정
+              </span>
+            </label>
+          </div>
+
           <button
             onClick={() => setViewMode(viewMode === 'calendar' ? 'list' : 'calendar')}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2 dark:text-gray-200"
@@ -190,7 +177,8 @@ export default function CalendarPage() {
       {viewMode === 'calendar' ? (
         <>
           <SimpleCalendar
-            schedules={schedules}
+            schedules={filteredSchedules}
+            academicSchedules={filteredAcademic}
             onDateClick={handleDateClick}
             onScheduleClick={handleScheduleClick}
           />
@@ -199,41 +187,78 @@ export default function CalendarPage() {
           )}
         </>
       ) : (
-        <>
-          {schedules.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">등록된 일정이 없습니다</div>
-          ) : (
-            <div className="space-y-4">
-              {schedules.map((schedule) => (
-                <div
-                  key={schedule.id}
-                  onClick={() => handleScheduleClick(schedule)}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center justify-between border-l-4 cursor-pointer hover:shadow-lg transition"
-                  style={{ borderColor: schedule.color || '#3b82f6' }}
-                >
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg dark:text-white">{schedule.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {schedule.startTime ? new Date(schedule.startTime).toLocaleString() : '시간 미설정'}
-                      {schedule.endTime ? ` ~ ${new Date(schedule.endTime).toLocaleString()}` : ''}
-                    </p>
-                    {schedule.location && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                        <MapPin className="w-4 h-4" /> {schedule.location}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={(e) => handleDelete(schedule.id, e)}
-                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+        <div className="space-y-6">
+          {/* 목록 뷰 - 개인 일정 */}
+          {showPersonal && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
+                개인 일정
+              </h2>
+              {schedules.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md">등록된 일정이 없습니다</div>
+              ) : (
+                <div className="space-y-3">
+                  {schedules.map((schedule) => (
+                    <div
+                      key={schedule.id}
+                      onClick={() => handleScheduleClick(schedule)}
+                      className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center justify-between border-l-4 cursor-pointer hover:shadow-lg transition"
+                      style={{ borderColor: schedule.color || '#3b82f6' }}
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg dark:text-white">{schedule.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {schedule.startTime ? new Date(schedule.startTime).toLocaleString() : '시간 미설정'}
+                          {schedule.endTime ? ` ~ ${new Date(schedule.endTime).toLocaleString()}` : ''}
+                        </p>
+                        {schedule.location && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                            <MapPin className="w-4 h-4" /> {schedule.location}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={(e) => handleDelete(schedule.id, e)}
+                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
-        </>
+
+          {/* 목록 뷰 - 학사 일정 */}
+          {showAcademic && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
+                학사 일정
+              </h2>
+              <div className="space-y-3">
+                {academicCalendar.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 ${ACADEMIC_BORDER_COLORS[item.type] || 'border-purple-500'}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100">{item.event}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{item.date}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${ACADEMIC_TYPE_COLORS[item.type] || ''}`}>
+                        {ACADEMIC_TYPE_LABELS[item.type] || item.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Add Schedule Modal */}
@@ -250,9 +275,7 @@ export default function CalendarPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">제목 *</label>
                 <input
-                  type="text"
-                  required
-                  value={form.title}
+                  type="text" required value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   placeholder="일정 제목"
@@ -262,8 +285,7 @@ export default function CalendarPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">시작 시간</label>
                   <input
-                    type="datetime-local"
-                    value={form.startTime}
+                    type="datetime-local" value={form.startTime}
                     onChange={e => setForm({ ...form, startTime: e.target.value })}
                     className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   />
@@ -271,8 +293,7 @@ export default function CalendarPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">종료 시간</label>
                   <input
-                    type="datetime-local"
-                    value={form.endTime}
+                    type="datetime-local" value={form.endTime}
                     onChange={e => setForm({ ...form, endTime: e.target.value })}
                     className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   />
@@ -283,8 +304,7 @@ export default function CalendarPage() {
                   <MapPin className="w-4 h-4 inline mr-1" />장소
                 </label>
                 <input
-                  type="text"
-                  value={form.location}
+                  type="text" value={form.location}
                   onChange={e => setForm({ ...form, location: e.target.value })}
                   className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   placeholder="장소 (선택)"
@@ -307,8 +327,7 @@ export default function CalendarPage() {
                 <div className="flex gap-2 flex-wrap">
                   {COLOR_OPTIONS.map(color => (
                     <button
-                      key={color}
-                      type="button"
+                      key={color} type="button"
                       onClick={() => setForm({ ...form, color })}
                       className={`w-8 h-8 rounded-full border-4 transition ${form.color === color ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent'}`}
                       style={{ backgroundColor: color }}
@@ -318,19 +337,13 @@ export default function CalendarPage() {
               </div>
               <div className="flex gap-3 pt-2">
                 <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
+                  type="button" onClick={() => setShowAddModal(false)}
                   className="flex-1 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition"
-                >
-                  취소
-                </button>
+                >취소</button>
                 <button
-                  type="submit"
-                  disabled={saving}
+                  type="submit" disabled={saving}
                   className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition disabled:opacity-50"
-                >
-                  {saving ? '저장 중...' : '저장'}
-                </button>
+                >{saving ? '저장 중...' : '저장'}</button>
               </div>
             </form>
           </div>
@@ -386,9 +399,7 @@ export default function CalendarPage() {
                 <button
                   onClick={() => setShowDetailModal(false)}
                   className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition"
-                >
-                  닫기
-                </button>
+                >닫기</button>
               </div>
             </div>
           </div>

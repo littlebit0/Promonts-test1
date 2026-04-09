@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { authAPI } from '../services/api';
 
 function Login({ onLogin }) {
@@ -31,7 +31,7 @@ function Login({ onLogin }) {
       localStorage.setItem('user', JSON.stringify({ email, name, role }));
       onLogin({ email, name, role });
     } catch (err) {
-      setError(err.response?.data?.message || '로그인/회원가입에 실패했습니다.');
+      setError(err.response?.data?.message || '로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.');
     } finally {
       setLoading(false);
     }
@@ -121,6 +121,24 @@ function Login({ onLogin }) {
             {loading ? '처리 중...' : isLogin ? '로그인' : '회원가입'}
           </button>
         </form>
+        {/* Microsoft 로그인 구분선 */}
+        <div className="mt-6 flex items-center gap-3">
+          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+          <span className="text-xs text-gray-400 dark:text-gray-500">또는</span>
+          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <a
+          href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'}/oauth2/authorization/microsoft`}
+          className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium text-gray-700 dark:text-gray-300"
+        >
+          <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+          </svg>
+          Microsoft (학교 계정)로 로그인
+        </a>
 
         <div className="mt-4 text-center">
           <button
@@ -148,4 +166,3 @@ function Login({ onLogin }) {
 }
 
 export default Login;
-

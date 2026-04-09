@@ -10,6 +10,31 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  security:
+    oauth2:
+      client:
+        registration:
+          microsoft:
+            client-id: ${MICROSOFT_CLIENT_ID:ba630253-585b-4120-8e51-bd2f7b146701}
+            client-secret: ${MICROSOFT_CLIENT_SECRET:Yu48Q~zL0KSveTKl1QvHq94y~jMu6pxxLkT2~b_z}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+              - offline_access
+              - Mail.Read
+              - Mail.Send
+              - User.Read
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/bee9c342-a775-4fc4-9f88-85472fbc9a97/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/bee9c342-a775-4fc4-9f88-85472fbc9a97/oauth2/v2.0/token
+            jwk-set-uri: https://login.microsoftonline.com/bee9c342-a775-4fc4-9f88-85472fbc9a97/discovery/v2.0/keys
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            user-name-attribute: sub
+
 jwt:
   secret: ${JWT_SECRET:promonts-mvp-secret-key-change-this-in-production-2026}
   expiration: 86400000 # 24시간
@@ -41,6 +66,12 @@ management:
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+microsoft:
+  client-id: ${MICROSOFT_CLIENT_ID:ba630253-585b-4120-8e51-bd2f7b146701}
+  client-secret: ${MICROSOFT_CLIENT_SECRET:Yu48Q~zL0KSveTKl1QvHq94y~jMu6pxxLkT2~b_z}
+  tenant-id: ${MICROSOFT_TENANT_ID:bee9c342-a775-4fc4-9f88-85472fbc9a97}
+  redirect-uri: ${MICROSOFT_REDIRECT_URI:http://localhost:8080/login/oauth2/code/microsoft}
 
 ---
 # ===========================

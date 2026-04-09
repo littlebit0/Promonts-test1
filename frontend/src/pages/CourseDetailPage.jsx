@@ -1,4 +1,4 @@
-import { useToast } from '../components/Toast';
+﻿import { useToast } from '../components/Toast';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useEffect, useState } from 'react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -307,7 +307,7 @@ function CourseDetailPage({ user }) {
                   const fileInfo = getFileIcon(material.originalFileName || material.title);
                   const FileIcon = fileInfo.icon;
                   const canPreview = isImage(material.originalFileName) || isPdf(material.originalFileName);
-                  const previewUrl = `${API_BASE}/materials/${material.id}/download`;
+                  const previewUrl = `${import.meta.env.VITE_API_URL || "http://localhost:8080/api"}/materials/${material.id}/download`;
                   return (
                     <div
                       key={material.id}
